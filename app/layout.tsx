@@ -3,7 +3,10 @@ import { SiteHeader } from "@/components/site-header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ??
+      "https://onsuite-urun-mimarisi.amasya-sisko-2962.chatgpt.site",
+  ),
   title: {
     default: "OnSuite Ürün Mimarisi",
     template: "%s · OnSuite",
