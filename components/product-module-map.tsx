@@ -70,10 +70,10 @@ const MODULE_HEIGHT = 78;
 function HubNode({ data }: NodeProps<HubNodeData>) {
   return (
     <div
-      className={`map-entry-node w-[210px] rounded-2xl border border-emerald-300 bg-emerald-700 text-center text-white shadow-xl shadow-emerald-950/20 transition ${data.expanded ? "ring-4 ring-emerald-200" : ""}`}
+      className={`map-entry-node map-hub-node w-[210px] rounded-2xl border text-center text-white shadow-xl transition ${data.expanded ? "is-expanded" : ""}`}
       style={{ "--map-entry-delay": `${data.entranceDelay}ms` } as CSSProperties}
     >
-      <Handle id="left" type="source" position={Position.Left} className="!h-2 !w-2 !border-emerald-200 !bg-emerald-50" />
+      <Handle id="left" type="source" position={Position.Left} className="map-hub-handle !h-2 !w-2" />
       <button
         type="button"
         className="nodrag nopan block w-full cursor-pointer rounded-2xl px-4 py-4"
@@ -81,10 +81,10 @@ function HubNode({ data }: NodeProps<HubNodeData>) {
         aria-label={`Paylaşılan Modüller (${data.count}). ${data.expanded ? "Listeyi kapat" : "Listeyi aç"}`}
         onClick={data.onToggle}
       >
-        <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100">Merkez</span>
+        <span className="map-hub-eyebrow block text-[11px] font-semibold uppercase tracking-[0.18em]">Merkez</span>
         <strong className="mt-1 block text-sm font-bold">Paylaşılan Modüller ({data.count})</strong>
       </button>
-      <Handle id="right" type="source" position={Position.Right} className="!h-2 !w-2 !border-emerald-200 !bg-emerald-50" />
+      <Handle id="right" type="source" position={Position.Right} className="map-hub-handle !h-2 !w-2" />
     </div>
   );
 }
@@ -92,13 +92,13 @@ function HubNode({ data }: NodeProps<HubNodeData>) {
 function ProductNode({ data }: NodeProps<ProductNodeData>) {
   return (
     <div
-      className={`map-entry-node w-[184px] rounded-2xl border bg-sky-50 text-center text-sky-950 shadow-lg shadow-sky-950/10 transition ${data.expanded ? "border-sky-500 ring-4 ring-sky-200" : "border-sky-200"}`}
+      className={`map-entry-node map-product-node w-[184px] rounded-2xl border text-center shadow-lg transition ${data.expanded ? "is-expanded" : ""}`}
       style={{ "--map-entry-delay": `${data.entranceDelay}ms` } as CSSProperties}
     >
       <Handle
         type="target"
         position={data.side === "left" ? Position.Right : Position.Left}
-        className="!h-2 !w-2 !border-sky-300 !bg-sky-600"
+        className="map-product-handle !h-2 !w-2"
       />
       <button
         type="button"
@@ -108,13 +108,13 @@ function ProductNode({ data }: NodeProps<ProductNodeData>) {
         onClick={() => data.onToggle(data.code)}
       >
         <strong className="block truncate text-sm font-bold" title={data.name}>{data.name}</strong>
-        <span className="mt-1 block text-xs font-medium text-sky-700">{data.moduleCount} modül</span>
+        <span className="map-product-count mt-1 block text-xs font-medium">{data.moduleCount} modül</span>
       </button>
       <Handle
         id="modules"
         type="source"
         position={data.side === "left" ? Position.Left : Position.Right}
-        className="!h-2 !w-2 !border-sky-300 !bg-sky-600"
+        className="map-product-handle !h-2 !w-2"
       />
     </div>
   );
@@ -128,22 +128,22 @@ function ModuleNode({ data }: NodeProps<ModuleNodeData>) {
   const isShared = data.sharedProducts.length > 1;
 
   const stateClasses = isComplete
-    ? "border-teal-600 bg-teal-600 text-white"
+    ? "module-node-complete"
     : isPartial
-      ? "border-amber-300 bg-white text-amber-950"
-      : "border-dashed border-amber-500 bg-amber-50 text-amber-950";
+      ? "module-node-partial"
+      : "module-node-planned";
 
   return (
-    <div className={`relative w-[210px] overflow-hidden rounded-2xl border-2 shadow-md transition ${stateClasses} ${isShared ? "ring-4 ring-violet-300" : ""}`}>
+    <div className={`map-module-node relative w-[210px] overflow-hidden rounded-2xl border-2 shadow-md transition ${stateClasses} ${isShared ? "module-node-shared" : ""}`}>
       <Handle
         type="target"
         position={data.side === "left" ? Position.Right : Position.Left}
-        className={`!h-2 !w-2 ${isShared ? "!border-violet-200 !bg-violet-600" : "!border-slate-200 !bg-slate-500"}`}
+        className={`map-module-handle !h-2 !w-2 ${isShared ? "is-shared" : ""}`}
       />
       {isPartial ? (
         <span
           aria-hidden="true"
-          className="absolute inset-y-0 left-0 bg-amber-200/80"
+          className="module-partial-fill absolute inset-y-0 left-0"
           style={{ width: `${percentage}%` }}
         />
       ) : null}
@@ -154,9 +154,9 @@ function ModuleNode({ data }: NodeProps<ModuleNodeData>) {
         onClick={() => data.onOpenModule(data)}
       >
         <strong className="block truncate text-[13px] font-bold" title={data.name}>{data.name}</strong>
-        <span className={`mt-1 flex items-center gap-1.5 text-[11px] font-semibold ${isComplete ? "text-teal-100" : "text-amber-800"}`}>
-          {isPlanned ? <span className="rounded-full bg-amber-200 px-2 py-0.5 text-amber-950">yakında</span> : <span>{percentage}%</span>}
-          {isShared ? <span className={`ml-auto ${isComplete ? "text-violet-100" : "text-violet-700"}`} title="Paylaşılan modül">◆ paylaşılan</span> : null}
+        <span className={`module-node-meta mt-1 flex items-center gap-1.5 text-[11px] font-semibold ${isComplete ? "is-complete" : ""}`}>
+          {isPlanned ? <span className="module-planned-pill rounded-full px-2 py-0.5">yakında</span> : <span>{percentage}%</span>}
+          {isShared ? <span className={`module-shared-mark ml-auto ${isComplete ? "is-complete" : ""}`} title="Paylaşılan modül">◆ paylaşılan</span> : null}
         </span>
       </button>
     </div>
@@ -281,7 +281,7 @@ function createMap(
     className: "map-entry-edge",
     data: { entranceDelay: 180 + index * 60 },
     style: {
-      stroke: product.sharedModuleCount > 0 ? "#64748b" : "#cbd5e1",
+      stroke: product.sharedModuleCount > 0 ? "var(--brand)" : "var(--gray-300)",
       strokeWidth: Math.min(5.5, 1 + product.sharedModuleCount * 0.48),
       "--map-entry-delay": `${180 + index * 60}ms`,
     },
@@ -294,7 +294,7 @@ function createMap(
     target: moduleNodeId(module),
     type: "smoothstep",
     style: {
-      stroke: module.sharedProducts.length > 1 ? "#8b5cf6" : "#d6a02d",
+      stroke: module.sharedProducts.length > 1 ? "var(--brand)" : "var(--gray-400)",
       strokeWidth: module.sharedProducts.length > 1 ? 1.8 : 1.2,
     },
   }));
@@ -506,7 +506,7 @@ export function ProductModuleMap({
         preventScrolling
         proOptions={{ hideAttribution: true }}
         >
-          <Background color="#d7e0db" gap={24} size={1} />
+          <Background color="var(--gray-300)" gap={24} size={1} />
           <Controls showInteractive={false} position="bottom-right" />
         </ReactFlow>
       </section>
