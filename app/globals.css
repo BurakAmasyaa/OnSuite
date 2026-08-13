@@ -127,8 +127,33 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-layer-core .architecture-layer-copy div > span { color: #cfe2da; }
 .architecture-badges { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0 64px; }
 .architecture-badges span { border: 1px solid var(--architecture-line); border-radius: 999px; background: var(--architecture-badge); padding: 8px 12px; color: var(--architecture-accent); font-size: 0.78rem; font-weight: 750; }
-.architecture-arrow { display: grid; width: 54px; height: 68px; place-items: center; }
-.architecture-arrow span { display: grid; width: 34px; height: 48px; place-items: center; border: 1px solid #cbd8d1; border-radius: 999px; background: white; color: var(--accent); font-size: 1.35rem; box-shadow: 0 8px 20px rgba(40, 66, 55, 0.08); }
+.architecture-arrow { position: relative; width: 54px; height: 72px; }
+.architecture-arrow::before {
+  position: absolute;
+  top: 4px;
+  bottom: 12px;
+  left: 50%;
+  width: 2px;
+  background: repeating-linear-gradient(to bottom, #2f8f6b 0 6px, transparent 6px 12px);
+  content: "";
+  transform: translateX(-50%);
+}
+.architecture-arrow span {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  color: var(--accent);
+  font-size: 1.15rem;
+  line-height: 1;
+  transform: translateX(-50%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .architecture-arrow::before { animation: architecture-flow 2s linear infinite; }
+  @keyframes architecture-flow {
+    from { background-position-y: 0; }
+    to { background-position-y: 24px; }
+  }
+}
 
 .map-page-shell { width: min(1400px, calc(100% - 32px)); }
 .map-heading { margin-bottom: 24px; }
