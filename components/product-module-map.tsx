@@ -18,6 +18,19 @@ type ProductSummary = {
   code: string;
   name: string;
   moduleCount: number;
+  sharedModuleCount: number;
+};
+
+type SharedModuleSummary = {
+  code: string;
+  name: string;
+  products: string[];
+};
+
+type HubNodeData = {
+  count: number;
+  expanded: boolean;
+  onToggle: () => void;
 };
 
 type ModuleSummary = {
@@ -52,12 +65,20 @@ const PRODUCT_HEIGHT = 72;
 const MODULE_WIDTH = 210;
 const MODULE_HEIGHT = 78;
 
-function HubNode() {
+function HubNode({ data }: NodeProps<HubNodeData>) {
   return (
-    <div className="w-[210px] rounded-2xl border border-emerald-300 bg-emerald-700 px-5 py-4 text-center text-white shadow-xl shadow-emerald-950/20">
+    <div className={`w-[210px] rounded-2xl border border-emerald-300 bg-emerald-700 text-center text-white shadow-xl shadow-emerald-950/20 transition ${data.expanded ? "ring-4 ring-emerald-200" : ""}`}>
       <Handle id="left" type="source" position={Position.Left} className="!h-2 !w-2 !border-emerald-200 !bg-emerald-50" />
-      <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100">Merkez</span>
-      <strong className="mt-1 block text-base font-bold">Core + Connect</strong>
+      <button
+        type="button"
+        className="nodrag nopan block w-full cursor-pointer rounded-2xl px-4 py-4"
+        aria-expanded={data.expanded}
+        aria-label={`Paylaşılan Modüller (${data.count}). ${data.expanded ? "Listeyi kapat" : "Listeyi aç"}`}
+        onClick={data.onToggle}
+      >
+        <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100">Merkez</span>
+        <strong className="mt-1 block text-sm font-bold">Paylaşılan Modüller ({data.count})</strong>
+      </button>
       <Handle id="right" type="source" position={Position.Right} className="!h-2 !w-2 !border-emerald-200 !bg-emerald-50" />
     </div>
   );
@@ -216,7 +237,10 @@ function createMap(
   products: ProductSummary[],
   modules: ModuleSummary[],
   expandedProductCode: string | null,
+  hubExpanded: boolean,
+  sharedModuleCount: number,
   onToggle: (productCode: string) => void,
+  onToggleHub: () => void,
   onOpenModule: (module: ModuleSummary) => void,
 ) {
   const leftProducts = products.filter((_, index) => index % 2 === 0);
@@ -225,7 +249,12 @@ function createMap(
   const right = layoutBranch(rightProducts, modules, expandedProductCode, "LR", "right", onToggle, onOpenModule);
 
   const nodes: Node[] = [
-    { id: HUB_ID, type: "hub", position: { x: 0, y: 0 }, data: {} },
+    {
+      id: HUB_ID,
+      type: "hub",
+      position: { x: 0, y: 0 },
+      data: { count: sharedModuleCount, expanded: hubExpanded, onToggle: onToggleHub },
+    },
     ...left.productNodes,
     ...right.productNodes,
     ...left.moduleNodes,
@@ -238,7 +267,10 @@ function createMap(
     sourceHandle: index % 2 === 0 ? "left" : "right",
     target: product.code,
     type: "smoothstep",
-    style: { stroke: "#94a3b8", strokeWidth: 1.15 },
+    style: {
+      stroke: product.sharedModuleCount > 0 ? "#64748b" : "#cbd5e1",
+      strokeWidth: Math.min(5.5, 1 + product.sharedModuleCount * 0.48),
+    },
   }));
 
   const moduleEdges: Edge[] = [...left.visibleModules, ...right.visibleModules].map((module) => ({
@@ -254,6 +286,38 @@ function createMap(
   }));
 
   return { nodes, edges: [...productEdges, ...moduleEdges] };
+}
+
+function SharedModulesPanel({ modules, onClose }: { modules: SharedModuleSummary[]; onClose: () => void }) {
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
+  return (
+    <aside className="shared-modules-panel" aria-label="Paylaşılan modüller listesi">
+      <header>
+        <div>
+          <span>Merkez kataloğu</span>
+          <h2>Paylaşılan Modüller ({modules.length})</h2>
+        </div>
+        <button type="button" aria-label="Paylaşılan modüller listesini kapat" onClick={onClose}>×</button>
+      </header>
+      <div className="shared-modules-list">
+        {modules.map((module) => (
+          <article key={module.code}>
+            <strong>{module.name}</strong>
+            <div>
+              {module.products.map((product) => <span key={product}>{product}</span>)}
+            </div>
+          </article>
+        ))}
+      </div>
+    </aside>
+  );
 }
 
 function ModuleDetailPanel({ module, onClose }: { module: ModuleSummary; onClose: () => void }) {
@@ -341,13 +405,29 @@ function ModuleDetailPanel({ module, onClose }: { module: ModuleSummary; onClose
   );
 }
 
-export function ProductModuleMap({ products, modules }: { products: ProductSummary[]; modules: ModuleSummary[] }) {
+export function ProductModuleMap({
+  products,
+  modules,
+  sharedModules,
+}: {
+  products: ProductSummary[];
+  modules: ModuleSummary[];
+  sharedModules: SharedModuleSummary[];
+}) {
   const [expandedProductCode, setExpandedProductCode] = useState<string | null>(null);
+  const [hubExpanded, setHubExpanded] = useState(false);
   const [selectedModule, setSelectedModule] = useState<ModuleSummary | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const handleToggle = useCallback((productCode: string) => {
     setExpandedProductCode((current) => current === productCode ? null : productCode);
+    setHubExpanded(false);
+    setSelectedModule(null);
+  }, []);
+
+  const handleToggleHub = useCallback(() => {
+    setHubExpanded((current) => !current);
+    setExpandedProductCode(null);
     setSelectedModule(null);
   }, []);
 
@@ -356,8 +436,17 @@ export function ProductModuleMap({ products, modules }: { products: ProductSumma
   }, []);
 
   const { nodes, edges } = useMemo(
-    () => createMap(products, modules, expandedProductCode, handleToggle, handleOpenModule),
-    [products, modules, expandedProductCode, handleToggle, handleOpenModule],
+    () => createMap(
+      products,
+      modules,
+      expandedProductCode,
+      hubExpanded,
+      sharedModules.length,
+      handleToggle,
+      handleToggleHub,
+      handleOpenModule,
+    ),
+    [products, modules, expandedProductCode, hubExpanded, sharedModules.length, handleToggle, handleToggleHub, handleOpenModule],
   );
 
   useEffect(() => {
@@ -366,11 +455,12 @@ export function ProductModuleMap({ products, modules }: { products: ProductSumma
       flowInstance.fitView({ padding: 0.16, minZoom: 0.2, maxZoom: 1, duration: 420 });
     });
     return () => cancelAnimationFrame(animationFrame);
-  }, [expandedProductCode, flowInstance, nodes.length]);
+  }, [expandedProductCode, hubExpanded, flowInstance, nodes.length]);
 
   return (
     <>
       <section className="map-frame" aria-label="OnSuite ürün ve modül haritası">
+        {hubExpanded ? <SharedModulesPanel modules={sharedModules} onClose={() => setHubExpanded(false)} /> : null}
         <ReactFlow
         nodes={nodes}
         edges={edges}

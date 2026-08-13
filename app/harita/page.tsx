@@ -9,10 +9,18 @@ const moduleCounts = modules.reduce<Record<string, number>>((counts, module) => 
   return counts;
 }, {});
 
+const sharedModuleCounts = sharedModules.reduce<Record<string, number>>((counts, module) => {
+  module.products.forEach((productCode) => {
+    counts[productCode] = (counts[productCode] ?? 0) + 1;
+  });
+  return counts;
+}, {});
+
 const mapProducts = products.map((product) => ({
   code: product.AppProductCode,
   name: product.ProductTitleTR ?? product.ProductTitleEN ?? product.AppProductCode,
   moduleCount: moduleCounts[product.AppProductCode] ?? 0,
+  sharedModuleCount: sharedModuleCounts[product.AppProductCode] ?? 0,
 }));
 
 const sharedProductsByModuleCode = new Map(
@@ -34,6 +42,12 @@ const mapModules = modules.map((module) => ({
   sharedProducts: sharedProductsByModuleCode.get(module.AppModuleCode) ?? [],
 }));
 
+const mapSharedModules = sharedModules.map((module) => ({
+  code: module.moduleCode,
+  name: module.moduleTitleTR ?? module.moduleTitleEN ?? module.moduleCode,
+  products: module.products,
+}));
+
 export default function ProductModuleMapPage() {
   return (
     <div className="page-shell map-page-shell">
@@ -45,7 +59,7 @@ export default function ProductModuleMapPage() {
           tarafından otomatik hesaplanır.
         </p>
       </header>
-      <ProductModuleMap products={mapProducts} modules={mapModules} />
+      <ProductModuleMap products={mapProducts} modules={mapModules} sharedModules={mapSharedModules} />
     </div>
   );
 }
