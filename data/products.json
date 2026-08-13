@@ -1,0 +1,137 @@
+[
+  {
+    "AppProductCode": "CORE",
+    "ProductTitleTR": "Core",
+    "ProductTitleEN": "Core",
+    "ProductShortDescriptionTR": "İşletmenizin dijital omurgasını oluşturun, tüm sistem altyapısını merkezi olarak yönetin.",
+    "ProductShortDescriptionEN": "Build your business's digital backbone and centrally manage the entire system infrastructure.",
+    "ImageLink": "/images/homepage/products/core.svg",
+    "ProductSortOrder": 0
+  },
+  {
+    "AppProductCode": "CONNECTIVITY",
+    "ProductTitleTR": "Connect",
+    "ProductTitleEN": "Connect",
+    "ProductShortDescriptionTR": "Farklı marka ve protokollerle makinelerinizi sisteme bağlayın ve veri toplayın.",
+    "ProductShortDescriptionEN": "Connect your machines with different brands and protocols to the system and collect data.",
+    "ImageLink": "/images/homepage/products/connectivity.svg",
+    "ProductSortOrder": 1
+  },
+  {
+    "AppProductCode": "CNC",
+    "ProductTitleTR": "CNC",
+    "ProductTitleEN": "CNC",
+    "ProductShortDescriptionTR": "CNC makinelerinizden gerçek zamanlı veri toplayın ve üretim süreçlerinizi optimize edin.",
+    "ProductShortDescriptionEN": "Collect real-time data from your CNC machines and optimize your production processes.",
+    "ImageLink": "/images/homepage/products/cnc.svg",
+    "ProductSortOrder": 2
+  },
+  {
+    "AppProductCode": "MONITORA",
+    "ProductTitleTR": "Live",
+    "ProductTitleEN": "Live",
+    "ProductShortDescriptionTR": "Üretim süreçlerinizi gerçek zamanlı izleyin, analiz edin ve raporlayın.",
+    "ProductShortDescriptionEN": "Monitor, analyze and report your production processes in real time.",
+    "ImageLink": "/images/homepage/products/monitora.svg",
+    "ProductSortOrder": 3
+  },
+  {
+    "AppProductCode": "OEE",
+    "ProductTitleTR": "Optima",
+    "ProductTitleEN": "Optima",
+    "ProductShortDescriptionTR": "Toplam Ekipman Etkinliğini ölçün, üretim performansınızı artırın.",
+    "ProductShortDescriptionEN": "Measure Total Equipment Effectiveness, improve your production performance.",
+    "ImageLink": "/images/homepage/products/oee.svg",
+    "ProductSortOrder": 4
+  },
+  {
+    "AppProductCode": "İZLENEBILIRLIK",
+    "ProductTitleTR": "Trace",
+    "ProductTitleEN": "Trace",
+    "ProductShortDescriptionTR": "Ürün ve süreçlerinizin tam izlenebilirliğini sağlayın.",
+    "ProductShortDescriptionEN": "Ensure full traceability of your products and processes.",
+    "ImageLink": "/images/homepage/products/izlenebilirlik.svg",
+    "ProductSortOrder": 5
+  },
+  {
+    "AppProductCode": "DSF",
+    "ProductTitleTR": "Forms",
+    "ProductTitleEN": "Forms",
+    "ProductShortDescriptionTR": "Formlarınızı dijitalleştirin, kağıtsız fabrikaya geçişinizi yapın.",
+    "ProductShortDescriptionEN": "Digitize your forms and transition to a paperless factory.",
+    "ImageLink": "/images/homepage/products/dsf.svg",
+    "ProductSortOrder": 6
+  },
+  {
+    "AppProductCode": "OPCTMC",
+    "ProductTitleTR": "TMC",
+    "ProductTitleEN": "TMC",
+    "ProductShortDescriptionTR": "OPC TMC protokolü ile makinalardan gerçek zamanlı veri yayınlayın.",
+    "ProductShortDescriptionEN": "Publish real-time data from machines with OPC TMC protocol.",
+    "ImageLink": "/images/homepage/products/opctmc.svg",
+    "ProductSortOrder": 7
+  },
+  {
+    "AppProductCode": "INTELLIGENCE",
+    "ProductTitleTR": "Insight",
+    "ProductTitleEN": "OnSuite Insight",
+    "ProductShortDescriptionTR": "Kurumsal verileri bağlamlandırarak doğal dil ile anlık içgörü ve karar desteği sunar.",
+    "ProductShortDescriptionEN": "Provides instant insight and decision support by contextualizing enterprise data with natural language.",
+    "ImageLink": "/images/homepage/products/intelligence.svg",
+    "ProductSortOrder": 8
+  },
+  {
+    "AppProductCode": "CARBONIQ",
+    "ProductTitleTR": "Green",
+    "ProductTitleEN": "Green",
+    "ProductShortDescriptionTR": "Üretimden raporlamaya sürdürülebilirliği uçtan uca yönetin.",
+    "ProductShortDescriptionEN": "Manage sustainability end-to-end, from production to reporting.",
+    "ImageLink": "/images/homepage/products/carboniq.svg",
+    "ProductSortOrder": 9
+  },
+  {
+    "AppProductCode": "ENTEGRASYON",
+    "ProductTitleTR": "Integra",
+    "ProductTitleEN": "Integra",
+    "ProductShortDescriptionTR": "ERP (SAP, Oracle, Logo, Netsis vb.), MES ,WMS..vb. sistemler ile kesintisiz ve doğru veri alışverişini sağlayın.",
+    "ProductShortDescriptionEN": "Ensure uninterrupted and accurate data exchange with systems such as ERP (SAP, Oracle, Logo, Netsis etc.), MES, WMS etc.",
+    "ImageLink": "/images/homepage/products/entegrasyon.svg",
+    "ProductSortOrder": 14
+  },
+  {
+    "AppProductCode": "LMS",
+    "ProductTitleTR": "Training",
+    "ProductTitleEN": "Training",
+    "ProductShortDescriptionTR": "İSG eğitimlerini planlayın, uzaktan veya yüz yüze verin, sınav yapın, belgelendirin ve denetime hazır tutun.",
+    "ProductShortDescriptionEN": "Plan OHS training, deliver remotely or face-to-face, assess, certify, and keep audit-ready.",
+    "ImageLink": "/images/homepage/products/lms.svg",
+    "ProductSortOrder": 15
+  },
+  {
+    "AppProductCode": "APPROVE",
+    "ProductTitleTR": "Approve",
+    "ProductTitleEN": "Approve",
+    "ProductShortDescriptionTR": "Doküman onaylarını, compliance kayıtlarını ve hukuki bildirim süreçlerini nitelikli zaman damgası ile güvence altına alın.",
+    "ProductShortDescriptionEN": "Secure document acknowledgments, compliance records, and legal notification workflows with qualified timestamps.",
+    "ImageLink": "/images/homepage/products/approve.svg",
+    "ProductSortOrder": 16
+  },
+  {
+    "AppProductCode": "ENGAGE",
+    "ProductTitleTR": "Engage",
+    "ProductTitleEN": "OnSuite Engage",
+    "ProductShortDescriptionTR": "Acil durum ve rutin kontrollerde çalışanlara yoklama gönderin, yanıtları toplayın ve canlı durum tablosuyla karar verin.",
+    "ProductShortDescriptionEN": "Send safety check-ins to employees for emergencies and routine controls, collect responses, and make decisions with a live status board.",
+    "ImageLink": "/images/homepage/products/safecheck.svg",
+    "ProductSortOrder": 17
+  },
+  {
+    "AppProductCode": "INFORM",
+    "ProductTitleTR": "Inform",
+    "ProductTitleEN": "OnSuite Inform",
+    "ProductShortDescriptionTR": "Kurumsal bilgilendirme, politika yayını ve tebliğ süreçlerini tek platformdan yönetin; hukuki delil olarak saklayın.",
+    "ProductShortDescriptionEN": "Manage corporate information, policy publication, and notification delivery from a single platform; store as legal evidence.",
+    "ImageLink": "/images/homepage/products/inform.svg",
+    "ProductSortOrder": 18
+  }
+]

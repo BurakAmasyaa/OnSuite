@@ -1,0 +1,131 @@
+[
+  {
+    "moduleCode": "DOC_MGMT",
+    "moduleTitleTR": "Doküman Yönetimi",
+    "moduleTitleEN": "Document Management",
+    "products": [
+      "İZLENEBILIRLIK",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "ENERGY",
+    "moduleTitleTR": "Enerji Yönetimi",
+    "moduleTitleEN": "Energy Management",
+    "products": [
+      "İZLENEBILIRLIK",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "EQUIP",
+    "moduleTitleTR": "Ekipman Yönetimi",
+    "moduleTitleEN": "Equipment Management",
+    "products": [
+      "İZLENEBILIRLIK",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "NOTIF",
+    "moduleTitleTR": "Bildirim Yönetimi",
+    "moduleTitleEN": "Notification Management",
+    "products": [
+      "İZLENEBILIRLIK",
+      "MONITORA",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "TRACEADDON",
+    "moduleTitleTR": "Andon",
+    "moduleTitleEN": "Andon",
+    "products": [
+      "İZLENEBILIRLIK",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "TRACEDASHBOARD",
+    "moduleTitleTR": "Dashboard",
+    "moduleTitleEN": "Dashboard",
+    "products": [
+      "İZLENEBILIRLIK",
+      "MONITORA",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "TRACEREPORT",
+    "moduleTitleTR": "Raporlama",
+    "moduleTitleEN": "Reporting",
+    "products": [
+      "İZLENEBILIRLIK",
+      "MONITORA",
+      "OEE"
+    ]
+  },
+  {
+    "moduleCode": "VTALLEN",
+    "moduleTitleTR": "Allen Bradley",
+    "moduleTitleEN": "Allen Bradley",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VTBECKHOFF",
+    "moduleTitleTR": "Beckhoff Twincat 2/3",
+    "moduleTitleEN": "Beckhoff Twincat 2/3",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VTMITSUBISHI",
+    "moduleTitleTR": "Mitsubishi",
+    "moduleTitleEN": "Mitsubishi",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VTMODUS",
+    "moduleTitleTR": "Modbus",
+    "moduleTitleEN": "Modbus",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VTOPCDA",
+    "moduleTitleTR": "OPC DA",
+    "moduleTitleEN": "OPC DA",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VTSIEMENSS7",
+    "moduleTitleTR": "Siemens S7",
+    "moduleTitleEN": "Siemens S7",
+    "products": [
+      "CONNECTIVITY",
+      "OPCTMC"
+    ]
+  },
+  {
+    "moduleCode": "VYOPCUA",
+    "moduleTitleTR": "Veri Yayınlama - OPCUA",
+    "moduleTitleEN": "Data Publishing - OPCUA",
+    "products": [
+      "CNC",
+      "CONNECTIVITY"
+    ]
+  }
+]
