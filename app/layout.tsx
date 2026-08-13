@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import "reactflow/dist/style.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
