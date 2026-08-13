@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ProductModuleMap } from "@/components/product-module-map";
-import { modules, products } from "@/lib/data";
+import { modules, products, sharedModules } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Ürün-Modül Haritası" };
 
@@ -15,6 +15,19 @@ const mapProducts = products.map((product) => ({
   moduleCount: moduleCounts[product.AppProductCode] ?? 0,
 }));
 
+const sharedProductsByModuleCode = new Map(
+  sharedModules.map((module) => [module.moduleCode, module.products]),
+);
+
+const mapModules = modules.map((module) => ({
+  productCode: module.AppProductCode,
+  code: module.AppModuleCode,
+  name: module.ModuleTitleTR ?? module.ModuleTitleEN ?? module.AppModuleCode,
+  completePercentage: module.CompletePercentage,
+  status: module.status === "planned" ? "planned" as const : "live" as const,
+  sharedProducts: sharedProductsByModuleCode.get(module.AppModuleCode) ?? [],
+}));
+
 export default function ProductModuleMapPage() {
   return (
     <div className="page-shell map-page-shell">
@@ -26,7 +39,7 @@ export default function ProductModuleMapPage() {
           tarafından otomatik hesaplanır.
         </p>
       </header>
-      <ProductModuleMap products={mapProducts} />
+      <ProductModuleMap products={mapProducts} modules={mapModules} />
     </div>
   );
 }
