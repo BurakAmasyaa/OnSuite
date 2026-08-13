@@ -42,3 +42,4 @@ yarn-error.log*
 
 # local source workbook (contains internal-only columns)
 /V_ProductModuleMenu.xlsx
+~$*.xlsx

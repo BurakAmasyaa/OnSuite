@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import dagre from "dagre";
 import ReactFlow, {
   Background,
@@ -26,13 +26,11 @@ type ModuleSummary = {
   name: string;
   completePercentage: number | null;
   status: "live" | "planned";
+  draft: boolean;
+  shortDescription: string | null;
+  description: string | null;
+  features: string[];
   sharedProducts: string[];
-};
-
-type SharedModuleInfo = {
-  code: string;
-  name: string;
-  products: string[];
 };
 
 type ProductNodeData = ProductSummary & {
@@ -43,7 +41,7 @@ type ProductNodeData = ProductSummary & {
 
 type ModuleNodeData = ModuleSummary & {
   side: "left" | "right";
-  onSharedClick: (module: SharedModuleInfo) => void;
+  onOpenModule: (module: ModuleSummary) => void;
 };
 
 const HUB_ID = "core-connect-hub";
@@ -99,7 +97,6 @@ function ModuleNode({ data }: NodeProps<ModuleNodeData>) {
   const isPartial = data.status === "live" && percentage >= 50 && percentage < 100;
   const isPlanned = !isComplete && !isPartial;
   const isShared = data.sharedProducts.length > 1;
-  const otherProducts = data.sharedProducts.filter((product) => product !== data.productCode);
 
   const stateClasses = isComplete
     ? "border-teal-600 bg-teal-600 text-white"
@@ -123,13 +120,9 @@ function ModuleNode({ data }: NodeProps<ModuleNodeData>) {
       ) : null}
       <button
         type="button"
-        className={`nodrag nopan relative z-10 block min-h-[74px] w-full px-3 py-2.5 text-left ${isShared ? "cursor-pointer" : "cursor-default"}`}
-        aria-label={isShared ? `${data.name}. Paylaşılan modül bilgisini göster` : data.name}
-        onClick={() => {
-          if (isShared) {
-            data.onSharedClick({ code: data.code, name: data.name, products: otherProducts });
-          }
-        }}
+        className="nodrag nopan relative z-10 block min-h-[74px] w-full cursor-pointer px-3 py-2.5 text-left"
+        aria-label={`${data.name} modül detaylarını aç`}
+        onClick={() => data.onOpenModule(data)}
       >
         <strong className="block truncate text-[13px] font-bold" title={data.name}>{data.name}</strong>
         <span className={`mt-1 flex items-center gap-1.5 text-[11px] font-semibold ${isComplete ? "text-teal-100" : "text-amber-800"}`}>
@@ -158,7 +151,7 @@ function layoutBranch(
   direction: "LR" | "RL",
   side: "left" | "right",
   onToggle: (productCode: string) => void,
-  onSharedClick: (module: SharedModuleInfo) => void,
+  onOpenModule: (module: ModuleSummary) => void,
 ) {
   const graph = new dagre.graphlib.Graph();
   graph.setDefaultEdgeLabel(() => ({}));
@@ -212,7 +205,7 @@ function layoutBranch(
         x: positioned.x - MODULE_WIDTH / 2 - hubLeft,
         y: positioned.y - MODULE_HEIGHT / 2 - hubTop,
       },
-      data: { ...module, side, onSharedClick },
+      data: { ...module, side, onOpenModule },
     };
   });
 
@@ -224,12 +217,12 @@ function createMap(
   modules: ModuleSummary[],
   expandedProductCode: string | null,
   onToggle: (productCode: string) => void,
-  onSharedClick: (module: SharedModuleInfo) => void,
+  onOpenModule: (module: ModuleSummary) => void,
 ) {
   const leftProducts = products.filter((_, index) => index % 2 === 0);
   const rightProducts = products.filter((_, index) => index % 2 === 1);
-  const left = layoutBranch(leftProducts, modules, expandedProductCode, "RL", "left", onToggle, onSharedClick);
-  const right = layoutBranch(rightProducts, modules, expandedProductCode, "LR", "right", onToggle, onSharedClick);
+  const left = layoutBranch(leftProducts, modules, expandedProductCode, "RL", "left", onToggle, onOpenModule);
+  const right = layoutBranch(rightProducts, modules, expandedProductCode, "LR", "right", onToggle, onOpenModule);
 
   const nodes: Node[] = [
     { id: HUB_ID, type: "hub", position: { x: 0, y: 0 }, data: {} },
@@ -263,23 +256,108 @@ function createMap(
   return { nodes, edges: [...productEdges, ...moduleEdges] };
 }
 
+function ModuleDetailPanel({ module, onClose }: { module: ModuleSummary; onClose: () => void }) {
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const isPlanned = module.draft || module.status === "planned";
+  const percentage = Math.max(0, Math.min(100, module.completePercentage ?? 0));
+  const otherProducts = module.sharedProducts.filter((product) => product !== module.productCode);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="module-drawer-backdrop" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose();
+    }}>
+      <aside className="module-drawer" role="dialog" aria-modal="true" aria-labelledby="module-drawer-title">
+        <header className="module-drawer-header">
+          <div>
+            <span className="module-drawer-kicker">{isPlanned ? "Planlanan modül" : "Modül detayı"}</span>
+            <h2 id="module-drawer-title">{module.name}</h2>
+          </div>
+          <button ref={closeButtonRef} type="button" aria-label="Detay panelini kapat" onClick={onClose}>×</button>
+        </header>
+
+        <div className="module-drawer-body">
+          {otherProducts.length > 0 ? (
+            <div className="module-shared-note">
+              <strong>◆ Paylaşılan modül</strong>
+              <p>Bu modül şu ürünlerde de var: {otherProducts.join(", ")}.</p>
+            </div>
+          ) : null}
+
+          <section className="module-detail-section">
+            <h3>Kısa açıklama</h3>
+            <p>{module.shortDescription ?? "Kısa açıklama henüz eklenmemiş."}</p>
+          </section>
+
+          <section className="module-detail-section">
+            <h3>Açıklama</h3>
+            <p>{module.description ?? "Açıklama henüz eklenmemiş."}</p>
+          </section>
+
+          <section className="module-detail-section">
+            <h3>Tamamlanma durumu</h3>
+            {isPlanned ? (
+              <span className="development-badge">Geliştirme aşamasında</span>
+            ) : (
+              <div className="module-progress-block">
+                <div className="module-progress-label"><span>İlerleme</span><strong>{percentage}%</strong></div>
+                <div className="module-progress-track" role="progressbar" aria-label="Modül tamamlanma yüzdesi" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percentage}>
+                  <span style={{ width: `${percentage}%` }} />
+                </div>
+              </div>
+            )}
+          </section>
+
+          {!isPlanned ? (
+            <section className="module-detail-section">
+              <h3>Özellikler</h3>
+              {module.features.length > 0 ? (
+                <ul className="module-feature-list">
+                  {module.features.map((feature) => <li key={feature}>{feature}</li>)}
+                </ul>
+              ) : (
+                <p>Bu modül için özellik listesi bulunmuyor.</p>
+              )}
+            </section>
+          ) : null}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 export function ProductModuleMap({ products, modules }: { products: ProductSummary[]; modules: ModuleSummary[] }) {
   const [expandedProductCode, setExpandedProductCode] = useState<string | null>(null);
-  const [sharedModuleInfo, setSharedModuleInfo] = useState<SharedModuleInfo | null>(null);
+  const [selectedModule, setSelectedModule] = useState<ModuleSummary | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   const handleToggle = useCallback((productCode: string) => {
     setExpandedProductCode((current) => current === productCode ? null : productCode);
-    setSharedModuleInfo(null);
+    setSelectedModule(null);
   }, []);
 
-  const handleSharedClick = useCallback((module: SharedModuleInfo) => {
-    setSharedModuleInfo(module);
+  const handleOpenModule = useCallback((module: ModuleSummary) => {
+    setSelectedModule(module);
   }, []);
 
   const { nodes, edges } = useMemo(
-    () => createMap(products, modules, expandedProductCode, handleToggle, handleSharedClick),
-    [products, modules, expandedProductCode, handleToggle, handleSharedClick],
+    () => createMap(products, modules, expandedProductCode, handleToggle, handleOpenModule),
+    [products, modules, expandedProductCode, handleToggle, handleOpenModule],
   );
 
   useEffect(() => {
@@ -291,18 +369,9 @@ export function ProductModuleMap({ products, modules }: { products: ProductSumma
   }, [expandedProductCode, flowInstance, nodes.length]);
 
   return (
-    <section className="map-frame" aria-label="OnSuite ürün ve modül haritası">
-      {sharedModuleInfo ? (
-        <aside className="map-info-panel" aria-live="polite">
-          <div>
-            <span className="map-info-kicker">◆ Paylaşılan modül</span>
-            <strong>{sharedModuleInfo.name}</strong>
-            <p>Bu modül şu ürünlerde de var: {sharedModuleInfo.products.join(", ")}.</p>
-          </div>
-          <button type="button" aria-label="Bilgi panelini kapat" onClick={() => setSharedModuleInfo(null)}>×</button>
-        </aside>
-      ) : null}
-      <ReactFlow
+    <>
+      <section className="map-frame" aria-label="OnSuite ürün ve modül haritası">
+        <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
@@ -320,10 +389,12 @@ export function ProductModuleMap({ products, modules }: { products: ProductSumma
         zoomOnDoubleClick
         preventScrolling
         proOptions={{ hideAttribution: true }}
-      >
-        <Background color="#d7e0db" gap={24} size={1} />
-        <Controls showInteractive={false} position="bottom-right" />
-      </ReactFlow>
-    </section>
+        >
+          <Background color="#d7e0db" gap={24} size={1} />
+          <Controls showInteractive={false} position="bottom-right" />
+        </ReactFlow>
+      </section>
+      {selectedModule ? <ModuleDetailPanel module={selectedModule} onClose={() => setSelectedModule(null)} /> : null}
+    </>
   );
 }

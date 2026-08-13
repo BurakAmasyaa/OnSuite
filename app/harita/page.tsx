@@ -25,6 +25,12 @@ const mapModules = modules.map((module) => ({
   name: module.ModuleTitleTR ?? module.ModuleTitleEN ?? module.AppModuleCode,
   completePercentage: module.CompletePercentage,
   status: module.status === "planned" ? "planned" as const : "live" as const,
+  draft: module.Draft === 1,
+  shortDescription: module.ModuleShortDescriptionTR,
+  description: module.DescriptionTR,
+  features: module.features
+    .map((feature) => feature.MenuNameTR ?? feature.MenuNameEN)
+    .filter((feature): feature is string => feature !== null),
   sharedProducts: sharedProductsByModuleCode.get(module.AppModuleCode) ?? [],
 }));
 
