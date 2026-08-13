@@ -238,8 +238,30 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-layer-copy h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); letter-spacing: -0.035em; }
 .architecture-layer-copy div > span { display: block; max-width: 720px; margin-top: 8px; color: var(--muted); line-height: 1.6; }
 .architecture-layer-core .architecture-layer-copy div > span { color: #cfe2da; }
-.architecture-badges { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 0 64px; }
-.architecture-badges span { border: 1px solid var(--architecture-line); border-radius: 999px; background: var(--architecture-badge); padding: 8px 12px; color: var(--architecture-accent); font-size: 0.78rem; font-weight: 750; }
+.architecture-badge-group { position: relative; z-index: 1; margin: 22px 0 0 64px; }
+.architecture-badge-label {
+  margin: 0 0 9px;
+  color: var(--architecture-accent);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.architecture-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.architecture-badges span {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  border: 1px solid var(--architecture-line);
+  border-radius: 999px;
+  background: var(--architecture-badge);
+  padding: 7px 13px;
+  color: var(--architecture-accent);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+.architecture-layer-field .architecture-badges span { border-color: #bfdbc9; color: #236849; }
+.architecture-layer-output .architecture-badges span { border-color: #e5d4b8; color: #875d27; }
 .architecture-arrow { position: relative; width: 54px; height: 72px; }
 .architecture-arrow::before {
   position: absolute;
@@ -412,7 +434,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .shared-modules-panel { inset: 12px; width: auto; max-height: calc(100% - 24px); }
   .shared-modules-list { max-height: calc(68vh - 92px); }
   .architecture-layer { padding: 22px 20px; border-radius: 20px; }
-  .architecture-badges { margin-left: 0; }
+  .architecture-badge-group { margin-left: 0; }
   .protocol-transformation { margin-bottom: 48px; border-radius: 22px; }
   .protocol-transformation-heading { padding: 24px 22px 4px; }
   .protocol-scene { height: 430px; }

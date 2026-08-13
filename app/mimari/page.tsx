@@ -65,10 +65,11 @@ type ArchitectureLayerProps = {
   title: string;
   description: string;
   badges: string[];
+  badgeLabel?: string;
   tone: "field" | "core" | "modules" | "output";
 };
 
-function ArchitectureLayer({ number, eyebrow, title, description, badges, tone }: ArchitectureLayerProps) {
+function ArchitectureLayer({ number, eyebrow, title, description, badges, badgeLabel, tone }: ArchitectureLayerProps) {
   return (
     <article className={`architecture-layer architecture-layer-${tone}`}>
       <div className="architecture-layer-copy">
@@ -79,8 +80,11 @@ function ArchitectureLayer({ number, eyebrow, title, description, badges, tone }
           <span>{description}</span>
         </div>
       </div>
-      <div className="architecture-badges" aria-label={`${title} bileşenleri`}>
-        {badges.map((badge) => <span key={badge}>{badge}</span>)}
+      <div className="architecture-badge-group">
+        {badgeLabel ? <p className="architecture-badge-label">{badgeLabel}</p> : null}
+        <div className="architecture-badges" aria-label={`${title} bileşenleri`}>
+          {badges.map((badge) => <span key={badge}>{badge}</span>)}
+        </div>
       </div>
     </article>
   );
@@ -174,6 +178,7 @@ export default function ArchitecturePage() {
           title="Saha katmanı"
           description="Makineler, kontrol sistemleri, endüstriyel protokoller ve kimliklendirme teknolojileri."
           badges={fieldTechnologies}
+          badgeLabel="Saha protokolleri"
           tone="field"
         />
         <FlowArrow />
@@ -201,6 +206,7 @@ export default function ArchitecturePage() {
           title="Entegrasyon & çıktı"
           description="Üretim sonuçlarını kurumsal kaynak planlama, depo ve iş yönetimi sistemleriyle çift yönlü paylaşır."
           badges={integrationSystems}
+          badgeLabel="Entegrasyon"
           tone="output"
         />
       </section>
