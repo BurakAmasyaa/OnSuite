@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import dagre from "dagre";
 import ReactFlow, {
   Background,
@@ -30,6 +30,7 @@ type SharedModuleSummary = {
 type HubNodeData = {
   count: number;
   expanded: boolean;
+  entranceDelay: number;
   onToggle: () => void;
 };
 
@@ -49,6 +50,7 @@ type ModuleSummary = {
 type ProductNodeData = ProductSummary & {
   side: "left" | "right";
   expanded: boolean;
+  entranceDelay: number;
   onToggle: (productCode: string) => void;
 };
 
@@ -67,7 +69,10 @@ const MODULE_HEIGHT = 78;
 
 function HubNode({ data }: NodeProps<HubNodeData>) {
   return (
-    <div className={`w-[210px] rounded-2xl border border-emerald-300 bg-emerald-700 text-center text-white shadow-xl shadow-emerald-950/20 transition ${data.expanded ? "ring-4 ring-emerald-200" : ""}`}>
+    <div
+      className={`map-entry-node w-[210px] rounded-2xl border border-emerald-300 bg-emerald-700 text-center text-white shadow-xl shadow-emerald-950/20 transition ${data.expanded ? "ring-4 ring-emerald-200" : ""}`}
+      style={{ "--map-entry-delay": `${data.entranceDelay}ms` } as CSSProperties}
+    >
       <Handle id="left" type="source" position={Position.Left} className="!h-2 !w-2 !border-emerald-200 !bg-emerald-50" />
       <button
         type="button"
@@ -86,7 +91,10 @@ function HubNode({ data }: NodeProps<HubNodeData>) {
 
 function ProductNode({ data }: NodeProps<ProductNodeData>) {
   return (
-    <div className={`w-[184px] rounded-2xl border bg-sky-50 text-center text-sky-950 shadow-lg shadow-sky-950/10 transition ${data.expanded ? "border-sky-500 ring-4 ring-sky-200" : "border-sky-200"}`}>
+    <div
+      className={`map-entry-node w-[184px] rounded-2xl border bg-sky-50 text-center text-sky-950 shadow-lg shadow-sky-950/10 transition ${data.expanded ? "border-sky-500 ring-4 ring-sky-200" : "border-sky-200"}`}
+      style={{ "--map-entry-delay": `${data.entranceDelay}ms` } as CSSProperties}
+    >
       <Handle
         type="target"
         position={data.side === "left" ? Position.Right : Position.Left}
@@ -168,6 +176,7 @@ function moduleNodeId(module: ModuleSummary) {
 function layoutBranch(
   products: ProductSummary[],
   modules: ModuleSummary[],
+  entranceOrderByCode: Map<string, number>,
   expandedProductCode: string | null,
   direction: "LR" | "RL",
   side: "left" | "right",
@@ -212,6 +221,7 @@ function layoutBranch(
         ...product,
         side,
         expanded: product.code === expandedProductCode,
+        entranceDelay: 180 + (entranceOrderByCode.get(product.code) ?? 0) * 60,
         onToggle,
       },
     };
@@ -245,15 +255,16 @@ function createMap(
 ) {
   const leftProducts = products.filter((_, index) => index % 2 === 0);
   const rightProducts = products.filter((_, index) => index % 2 === 1);
-  const left = layoutBranch(leftProducts, modules, expandedProductCode, "RL", "left", onToggle, onOpenModule);
-  const right = layoutBranch(rightProducts, modules, expandedProductCode, "LR", "right", onToggle, onOpenModule);
+  const entranceOrderByCode = new Map(products.map((product, index) => [product.code, index]));
+  const left = layoutBranch(leftProducts, modules, entranceOrderByCode, expandedProductCode, "RL", "left", onToggle, onOpenModule);
+  const right = layoutBranch(rightProducts, modules, entranceOrderByCode, expandedProductCode, "LR", "right", onToggle, onOpenModule);
 
   const nodes: Node[] = [
     {
       id: HUB_ID,
       type: "hub",
       position: { x: 0, y: 0 },
-      data: { count: sharedModuleCount, expanded: hubExpanded, onToggle: onToggleHub },
+      data: { count: sharedModuleCount, expanded: hubExpanded, entranceDelay: 0, onToggle: onToggleHub },
     },
     ...left.productNodes,
     ...right.productNodes,
@@ -267,9 +278,12 @@ function createMap(
     sourceHandle: index % 2 === 0 ? "left" : "right",
     target: product.code,
     type: "smoothstep",
+    className: "map-entry-edge",
+    data: { entranceDelay: 180 + index * 60 },
     style: {
       stroke: product.sharedModuleCount > 0 ? "#64748b" : "#cbd5e1",
       strokeWidth: Math.min(5.5, 1 + product.sharedModuleCount * 0.48),
+      "--map-entry-delay": `${180 + index * 60}ms`,
     },
   }));
 
@@ -418,6 +432,18 @@ export function ProductModuleMap({
   const [hubExpanded, setHubExpanded] = useState(false);
   const [selectedModule, setSelectedModule] = useState<ModuleSummary | null>(null);
   const [flowInstance, setFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [entranceActive, setEntranceActive] = useState(true);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setEntranceActive(false);
+      return;
+    }
+
+    const sequenceDuration = 180 + Math.max(0, products.length - 1) * 60 + 260;
+    const timer = window.setTimeout(() => setEntranceActive(false), sequenceDuration);
+    return () => window.clearTimeout(timer);
+  }, [products.length]);
 
   const handleToggle = useCallback((productCode: string) => {
     setExpandedProductCode((current) => current === productCode ? null : productCode);
@@ -459,7 +485,7 @@ export function ProductModuleMap({
 
   return (
     <>
-      <section className="map-frame" aria-label="OnSuite ürün ve modül haritası">
+      <section className={`map-frame ${entranceActive ? "map-entry-active" : ""}`} aria-label="OnSuite ürün ve modül haritası">
         {hubExpanded ? <SharedModulesPanel modules={sharedModules} onClose={() => setHubExpanded(false)} /> : null}
         <ReactFlow
         nodes={nodes}

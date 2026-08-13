@@ -353,6 +353,27 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   box-shadow: 0 10px 24px rgba(40, 66, 55, 0.12);
 }
 .map-frame .react-flow__controls-button { border-bottom-color: var(--line); }
+@media (prefers-reduced-motion: no-preference) {
+  .map-entry-active .map-entry-node {
+    animation: map-node-enter 180ms cubic-bezier(.2,.8,.3,1) both;
+    animation-delay: var(--map-entry-delay);
+    transform-origin: center;
+  }
+  .map-entry-active .map-entry-edge path {
+    animation: map-edge-draw 240ms ease-out both;
+    animation-delay: var(--map-entry-delay);
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+  }
+  @keyframes map-node-enter {
+    from { opacity: 0; transform: scale(.78); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes map-edge-draw {
+    from { opacity: 0; stroke-dashoffset: 1000; }
+    to { opacity: 1; stroke-dashoffset: 0; }
+  }
+}
 .shared-modules-panel {
   position: absolute;
   top: 18px;
