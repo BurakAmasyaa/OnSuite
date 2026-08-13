@@ -10,3 +10,5 @@ npm run dev
 ```
 
 `data/` altındaki JSON dosyaları `lib/data.ts` üzerinden build-time import edilir.
+
+Cloudflare uyumlu OpenNext çıktısı için `npm run build:worker` kullanılabilir.
