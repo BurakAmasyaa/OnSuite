@@ -374,7 +374,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   }
   .onsuite-access-signal {
     display: block;
-    animation: onsuite-access-signal-travel 0.9s linear infinite;
+    animation: onsuite-access-signal-travel 2.2s linear infinite;
   }
   .architecture-arrow::before { animation: architecture-flow 2s linear infinite; }
   @keyframes onsuite-signal-travel {
@@ -419,10 +419,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   @keyframes onsuite-access-signal-travel {
     0% { opacity: 0; transform: translate(0, 0); }
     7% { opacity: 1; }
-    20.2% { transform: translate(100px, 0); }
-    48.1% { transform: translate(100px, -138px); }
+    51.8% { transform: translate(-245px, 75px); }
+    79.8% { transform: translate(-245px, 213px); }
     93% { opacity: 1; }
-    100% { opacity: 0; transform: translate(345px, -213px); }
+    100% { opacity: 0; transform: translate(-345px, 213px); }
   }
   @keyframes architecture-flow {
     from { background-position-y: 0; }

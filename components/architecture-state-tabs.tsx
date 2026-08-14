@@ -148,8 +148,8 @@ function OnSuiteArchitecture() {
           />
           <circle
             className="onsuite-access-signal"
-            cx="230"
-            cy="488"
+            cx="575"
+            cy="275"
             r="5"
           />
         </svg>
