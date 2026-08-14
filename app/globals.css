@@ -304,6 +304,8 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-layer-output { --architecture-bg: var(--white); --architecture-line: var(--gray-300); --architecture-accent: var(--gray-800); --architecture-badge: var(--gray-100); --architecture-glow: rgba(23, 24, 28, 0.04); }
 .architecture-layer-copy { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: flex-start; }
 .architecture-number { display: grid; width: 46px; height: 46px; place-items: center; border: 1px solid var(--architecture-line); border-radius: 14px; color: var(--architecture-accent); font: 800 0.76rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+.architecture-tier-icon, .architecture-tier-icon .product-icon-tile { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 14px; }
+.architecture-tier-icon .product-icon-tile img { width: 25px; height: 25px; }
 .architecture-layer-copy p { margin: 1px 0 6px; color: var(--architecture-accent); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; }
 .architecture-layer-copy h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); letter-spacing: -0.035em; }
 .architecture-layer-copy div > span { display: block; max-width: 720px; margin-top: 8px; color: var(--muted); line-height: 1.6; }
@@ -318,10 +320,11 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   text-transform: uppercase;
 }
 .architecture-badges { display: flex; flex-wrap: wrap; gap: 8px; }
-.architecture-badges span {
+.architecture-badges > span {
   display: inline-flex;
   min-height: 34px;
   align-items: center;
+  gap: 6px;
   border: 1px solid var(--architecture-line);
   border-radius: 999px;
   background: var(--architecture-badge);
@@ -330,8 +333,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   font-size: 0.78rem;
   font-weight: 750;
 }
-.architecture-layer-field .architecture-badges span { border-color: var(--gray-300); color: var(--brand); }
-.architecture-layer-output .architecture-badges span { border-color: var(--gray-300); color: var(--gray-800); }
+.architecture-badges > span .product-icon-tile { width: 20px; height: 20px; border-radius: 6px; }
+.architecture-badges > span .product-icon-tile svg, .architecture-badges > span .product-icon-tile img { width: 13px; height: 13px; }
+.architecture-layer-field .architecture-badges > span { border-color: var(--gray-300); color: var(--brand); }
+.architecture-layer-output .architecture-badges > span { border-color: var(--gray-300); color: var(--gray-800); }
 .architecture-arrow { position: relative; width: 54px; height: 72px; }
 .architecture-arrow::before {
   position: absolute;
