@@ -15,8 +15,9 @@ const todaySystems = [
   { label: "Bildirim", x: 280, y: 316 },
 ] as const;
 
-const orbitCenter = { x: 460, y: 220 };
-const orbitRadius = 165;
+const orbitCanvas = { width: 1150, height: 550 };
+const orbitCenter = { x: orbitCanvas.width / 2, y: orbitCanvas.height / 2 };
+const orbitRadius = 206.25;
 
 const onsuiteSystems = todaySystems.map((system, index) => {
   const angle = index * 45;
@@ -88,7 +89,7 @@ function OnSuiteArchitecture() {
       <div className="onsuite-orbit-canvas">
         <svg
           className="onsuite-orbit-lines"
-          viewBox="0 0 920 440"
+          viewBox={`0 0 ${orbitCanvas.width} ${orbitCanvas.height}`}
           role="img"
           aria-label="OnSuite merkezinden sekiz sisteme uzanan bağlantılar"
         >
