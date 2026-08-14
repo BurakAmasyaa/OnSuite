@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ProductMapTabs } from "@/components/product-map-tabs";
-import { modules, products } from "@/lib/data";
+import { modules, products, sharedModules } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Ürün-Modül Kataloğu" };
 
@@ -15,6 +15,22 @@ const mapProducts = products.map((product) => ({
   moduleCount: moduleCounts[product.AppProductCode] ?? 0,
 }));
 
+const productTitles = new Map(
+  products.map((product) => [
+    product.AppProductCode,
+    product.ProductTitleTR ?? product.ProductTitleEN ?? product.AppProductCode,
+  ]),
+);
+
+const catalogSharedModules = sharedModules.map((module) => ({
+  code: module.moduleCode,
+  title: module.moduleTitleTR ?? module.moduleTitleEN ?? module.moduleCode,
+  products: module.products.map((productCode) => ({
+    code: productCode,
+    title: productTitles.get(productCode) ?? productCode,
+  })),
+}));
+
 export default function ProductMapPage() {
   return (
     <div className="page-shell map-page-shell">
@@ -25,7 +41,7 @@ export default function ProductMapPage() {
           Tüm ürünleri ve modül kapsamlarını tek bir sabit katalog görünümünde inceleyin.
         </p>
       </header>
-      <ProductMapTabs products={mapProducts} />
+      <ProductMapTabs products={mapProducts} sharedModules={catalogSharedModules} />
     </div>
   );
 }

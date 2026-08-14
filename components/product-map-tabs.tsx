@@ -10,6 +10,15 @@ type ProductSummary = {
   moduleCount: number;
 };
 
+type SharedModuleSummary = {
+  code: string;
+  title: string;
+  products: Array<{
+    code: string;
+    title: string;
+  }>;
+};
+
 type GridPosition = {
   desktopColumn: number;
   desktopRow: number;
@@ -67,7 +76,38 @@ function ProductsGrid({ products }: { products: ProductSummary[] }) {
   );
 }
 
-export function ProductMapTabs({ products }: { products: ProductSummary[] }) {
+function SharedModulesList({ modules }: { modules: SharedModuleSummary[] }) {
+  return (
+    <div className="shared-module-table" role="table" aria-label="Paylaşılan modüller">
+      <div className="shared-module-table-header" role="row">
+        <span role="columnheader">Modül</span>
+        <span role="columnheader">Kullanıldığı ürünler</span>
+      </div>
+      <div className="shared-module-table-body" role="rowgroup">
+        {modules.map((module) => (
+          <article className="shared-module-row" role="row" key={module.code}>
+            <strong role="cell">{module.title}</strong>
+            <div className="shared-module-products" role="cell">
+              {module.products.map((product) => (
+                <span className="shared-module-product-badge" key={product.code}>
+                  {product.title}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function ProductMapTabs({
+  products,
+  sharedModules,
+}: {
+  products: ProductSummary[];
+  sharedModules: SharedModuleSummary[];
+}) {
   const [activeTab, setActiveTab] = useState<ProductTab>("products");
 
   return (
@@ -110,12 +150,11 @@ export function ProductMapTabs({ products }: { products: ProductSummary[] }) {
         </div>
       ) : (
         <div
-          className="product-map-placeholder"
           id="product-map-panel-shared"
           role="tabpanel"
           aria-labelledby="product-map-tab-shared"
         >
-          <p>Paylaşılan modüller görünümü yakında eklenecek.</p>
+          <SharedModulesList modules={sharedModules} />
         </div>
       )}
     </section>
