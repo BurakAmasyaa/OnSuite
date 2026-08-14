@@ -57,14 +57,14 @@ function TodayArchitecture() {
           role="img"
           aria-label="Sekiz sistem ve kontrol kartından bağlantı talebine uzanan bağlantı çizgileri"
         >
-          <line className="is-solid" x1="220" y1="65" x2="720" y2="198" />
-          <line className="is-dashed" x1="460" y1="65" x2="720" y2="210" />
-          <line className="is-dashed" x1="220" y1="159" x2="720" y2="222" />
-          <line className="is-solid" x1="460" y1="159" x2="720" y2="198" />
-          <line className="is-solid" x1="220" y1="253" x2="720" y2="222" />
-          <line className="is-dashed" x1="460" y1="253" x2="720" y2="210" />
-          <line className="is-dashed" x1="220" y1="347" x2="720" y2="198" />
-          <line className="is-solid" x1="460" y1="347" x2="720" y2="222" />
+          <line className="is-solid today-grid-connector" x1="220" y1="65" x2="720" y2="213" style={{ "--connector-delay": "160ms" } as CSSProperties} />
+          <line className="is-dashed today-grid-connector" x1="460" y1="65" x2="720" y2="213" style={{ "--connector-delay": "240ms" } as CSSProperties} />
+          <line className="is-dashed today-grid-connector" x1="220" y1="159" x2="720" y2="213" style={{ "--connector-delay": "320ms" } as CSSProperties} />
+          <line className="is-solid today-grid-connector" x1="460" y1="159" x2="720" y2="213" style={{ "--connector-delay": "400ms" } as CSSProperties} />
+          <line className="is-solid today-grid-connector" x1="220" y1="253" x2="720" y2="213" style={{ "--connector-delay": "480ms" } as CSSProperties} />
+          <line className="is-dashed today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms" } as CSSProperties} />
+          <line className="is-dashed today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms" } as CSSProperties} />
+          <line className="is-solid today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms" } as CSSProperties} />
           <polyline
             className="is-dashed today-device-line"
             points="190,466 804,466 804,248"
@@ -86,11 +86,15 @@ function TodayArchitecture() {
           </g>
         </svg>
 
-        {todaySystems.map((system) => (
+        {todaySystems.map((system, index) => (
           <div
             className="today-system-node"
             key={system.label}
-            style={{ "--system-x": `${system.x}px`, "--system-y": `${system.y}px` } as CSSProperties}
+            style={{
+              "--system-x": `${system.x}px`,
+              "--system-y": `${system.y}px`,
+              "--node-delay": `${index * 80}ms`,
+            } as CSSProperties}
           >
             {system.label}
           </div>

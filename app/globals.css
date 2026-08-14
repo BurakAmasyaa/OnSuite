@@ -352,6 +352,15 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   transform: translateX(-50%);
 }
 @media (prefers-reduced-motion: no-preference) {
+  .today-system-node {
+    animation: today-system-node-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: var(--node-delay);
+    transform-origin: center;
+  }
+  .today-grid-connector {
+    animation: today-grid-connector-enter 300ms ease-out both;
+    animation-delay: var(--connector-delay);
+  }
   .today-warning-marker:first-of-type { animation: warning-flicker-a 1.83s steps(1, end) infinite; }
   .today-warning-marker:nth-of-type(2) { animation: warning-flicker-b 2.17s steps(1, end) 230ms infinite; }
   .onsuite-signal-pulse {
@@ -373,6 +382,16 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     12% { opacity: 1; }
     88% { opacity: 1; }
     100% { opacity: 0; transform: translate(var(--pulse-dx), var(--pulse-dy)); }
+  }
+  @keyframes today-system-node-enter {
+    from { opacity: 0; transform: scale(0.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes today-grid-connector-enter {
+    0% { opacity: 0; stroke-dasharray: 800; stroke-dashoffset: 800; }
+    1% { opacity: 1; }
+    99% { opacity: 1; stroke-dasharray: 800; stroke-dashoffset: 0; }
+    100% { opacity: 1; stroke-dashoffset: 0; }
   }
   @keyframes warning-flicker-a {
     0%, 13%, 31%, 57%, 76%, 100% { opacity: 1; }
