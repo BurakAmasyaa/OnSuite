@@ -1,8 +1,5 @@
-"use client";
-
-import { useState, type CSSProperties } from "react";
-
-type ProductTab = "products" | "shared" | "packages";
+import type { CSSProperties } from "react";
+import { ProductIcon, productIconByCode, type ProductIconKey } from "@/components/product-icon";
 
 type ProductSummary = {
   code: string;
@@ -32,7 +29,7 @@ type PackageGroup = {
   moduleCount: number;
   products: Array<{
     name: string;
-    initial: string;
+    icon: ProductIconKey;
   }>;
   position: GridPosition;
 };
@@ -59,55 +56,55 @@ const packageGroups: PackageGroup[] = [
   {
     name: "Endüstriyel İletişim",
     moduleCount: 2,
-    products: [{ name: "Connect", initial: "C" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Connect", icon: "connect" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 1, desktopRow: 1, tabletColumn: 1, tabletRow: 1, mobileRow: 1 },
   },
   {
     name: "CNC Entegrasyonu",
     moduleCount: 3,
-    products: [{ name: "CNC", initial: "C" }, { name: "Connect", initial: "C" }, { name: "Live", initial: "L" }],
+    products: [{ name: "CNC", icon: "cnc" }, { name: "Connect", icon: "connect" }, { name: "Live", icon: "live" }],
     position: { desktopColumn: 2, desktopRow: 1, tabletColumn: 2, tabletRow: 1, mobileRow: 2 },
   },
   {
     name: "Gerçek Zamanlı İzleme",
     moduleCount: 3,
-    products: [{ name: "Live", initial: "L" }, { name: "Connect", initial: "C" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Live", icon: "live" }, { name: "Connect", icon: "connect" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 3, desktopRow: 1, tabletColumn: 1, tabletRow: 2, mobileRow: 3 },
   },
   {
     name: "Performans ve OEE",
     moduleCount: 3,
-    products: [{ name: "Optima", initial: "O" }, { name: "Live", initial: "L" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Optima", icon: "optima" }, { name: "Live", icon: "live" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 1, desktopRow: 2, tabletColumn: 2, tabletRow: 2, mobileRow: 4 },
   },
   {
     name: "Ürün İzlenebilirliği",
     moduleCount: 3,
-    products: [{ name: "Trace", initial: "T" }, { name: "Forms", initial: "F" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Trace", icon: "trace" }, { name: "Forms", icon: "forms" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 2, desktopRow: 2, tabletColumn: 1, tabletRow: 3, mobileRow: 5 },
   },
   {
     name: "Dijital Saha Süreçleri",
     moduleCount: 2,
-    products: [{ name: "Forms", initial: "F" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Forms", icon: "forms" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 3, desktopRow: 2, tabletColumn: 2, tabletRow: 3, mobileRow: 6 },
   },
   {
     name: "Kurumsal Sistem Entegrasyonu",
     moduleCount: 2,
-    products: [{ name: "Integra", initial: "I" }, { name: "Core", initial: "C" }],
+    products: [{ name: "Integra", icon: "integra" }, { name: "Core", icon: "core" }],
     position: { desktopColumn: 1, desktopRow: 3, tabletColumn: 1, tabletRow: 4, mobileRow: 7 },
   },
   {
     name: "Enerji Görünürlüğü",
     moduleCount: 2,
-    products: [{ name: "Energy", initial: "E" }, { name: "Connect", initial: "C" }],
+    products: [{ name: "Energy", icon: "energy" }, { name: "Connect", icon: "connect" }],
     position: { desktopColumn: 2, desktopRow: 3, tabletColumn: 2, tabletRow: 4, mobileRow: 8 },
   },
   {
     name: "Tütün Makinesi Entegrasyonu",
     moduleCount: 3,
-    products: [{ name: "TMC", initial: "T" }, { name: "Connect", initial: "C" }, { name: "Live", initial: "L" }],
+    products: [{ name: "TMC", icon: "tmc" }, { name: "Connect", icon: "connect" }, { name: "Live", icon: "live" }],
     position: { desktopColumn: 3, desktopRow: 3, tabletColumn: 1, tabletRow: 5, mobileRow: 9 },
   },
 ];
@@ -117,8 +114,9 @@ function ProductsGrid({ products }: { products: ProductSummary[] }) {
     <div className="product-fixed-grid" aria-label="OnSuite ürünleri">
       {products.map((product) => {
         const position = productGridPositions[product.code];
+        const icon = productIconByCode[product.code];
 
-        if (!position) {
+        if (!position || !icon) {
           return null;
         }
 
@@ -134,8 +132,11 @@ function ProductsGrid({ products }: { products: ProductSummary[] }) {
               "--product-mobile-row": position.mobileRow,
             } as CSSProperties}
           >
-            <strong>{product.title}</strong>
-            <span>{product.moduleCount} modül</span>
+            <ProductIcon icon={icon} />
+            <div className="product-grid-card-copy">
+              <strong>{product.title}</strong>
+              <span>{product.moduleCount} modül</span>
+            </div>
           </article>
         );
       })}
@@ -155,11 +156,16 @@ function SharedModulesList({ modules }: { modules: SharedModuleSummary[] }) {
           <article className="shared-module-row" role="row" key={module.code}>
             <strong role="cell">{module.title}</strong>
             <div className="shared-module-products" role="cell">
-              {module.products.map((product) => (
-                <span className="shared-module-product-badge" key={product.code}>
-                  {product.title}
-                </span>
-              ))}
+              {module.products.map((product) => {
+                const icon = productIconByCode[product.code];
+
+                return (
+                  <span className="shared-module-product-badge" key={product.code}>
+                    {icon ? <ProductIcon icon={icon} /> : null}
+                    {product.title}
+                  </span>
+                );
+              })}
             </div>
           </article>
         ))}
@@ -190,7 +196,7 @@ function PackageGroupsGrid() {
           <div className="package-product-tags" aria-label={`${group.name} ürünleri`}>
             {group.products.map((product) => (
               <span className="package-product-tag" key={product.name}>
-                <span className="package-product-initial" aria-hidden="true">{product.initial}</span>
+                <ProductIcon icon={product.icon} />
                 {product.name}
               </span>
             ))}
@@ -201,80 +207,35 @@ function PackageGroupsGrid() {
   );
 }
 
-export function ProductMapTabs({
+export function ProductCatalog({
   products,
   sharedModules,
 }: {
   products: ProductSummary[];
   sharedModules: SharedModuleSummary[];
 }) {
-  const [activeTab, setActiveTab] = useState<ProductTab>("products");
-
   return (
-    <section className="product-map-tabs" aria-labelledby="product-map-tabs-title">
-      <div className="product-map-tabs-heading">
-        <p className="eyebrow">Katalog görünümü</p>
-        <h2 id="product-map-tabs-title">Ürün ve modül kapsamı</h2>
-      </div>
+    <div className="product-catalog-stack">
+      <section className="catalog-section" aria-labelledby="packages-section-title">
+        <header className="catalog-section-heading">
+          <h2 id="packages-section-title">İhtiyaca Göre Paketler</h2>
+        </header>
+        <PackageGroupsGrid />
+      </section>
 
-      <div className="product-map-tab-list" role="tablist" aria-label="Ürün kataloğu görünümü">
-        <button
-          id="product-map-tab-products"
-          type="button"
-          role="tab"
-          aria-controls="product-map-panel-products"
-          aria-selected={activeTab === "products"}
-          onClick={() => setActiveTab("products")}
-        >
-          Ürünler
-        </button>
-        <button
-          id="product-map-tab-shared"
-          type="button"
-          role="tab"
-          aria-controls="product-map-panel-shared"
-          aria-selected={activeTab === "shared"}
-          onClick={() => setActiveTab("shared")}
-        >
-          Paylaşılan Modüller
-        </button>
-        <button
-          id="product-map-tab-packages"
-          type="button"
-          role="tab"
-          aria-controls="product-map-panel-packages"
-          aria-selected={activeTab === "packages"}
-          onClick={() => setActiveTab("packages")}
-        >
-          İhtiyaca Göre Paketler
-        </button>
-      </div>
+      <section className="catalog-section" aria-labelledby="shared-section-title">
+        <header className="catalog-section-heading">
+          <h2 id="shared-section-title">Paylaşılan Modüller</h2>
+        </header>
+        <SharedModulesList modules={sharedModules} />
+      </section>
 
-      {activeTab === "products" ? (
-        <div
-          id="product-map-panel-products"
-          role="tabpanel"
-          aria-labelledby="product-map-tab-products"
-        >
-          <ProductsGrid products={products} />
-        </div>
-      ) : activeTab === "shared" ? (
-        <div
-          id="product-map-panel-shared"
-          role="tabpanel"
-          aria-labelledby="product-map-tab-shared"
-        >
-          <SharedModulesList modules={sharedModules} />
-        </div>
-      ) : (
-        <div
-          id="product-map-panel-packages"
-          role="tabpanel"
-          aria-labelledby="product-map-tab-packages"
-        >
-          <PackageGroupsGrid />
-        </div>
-      )}
-    </section>
+      <section className="catalog-section" aria-labelledby="products-section-title">
+        <header className="catalog-section-heading">
+          <h2 id="products-section-title">Tüm Ürünler</h2>
+        </header>
+        <ProductsGrid products={products} />
+      </section>
+    </div>
   );
 }

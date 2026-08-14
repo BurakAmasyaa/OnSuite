@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ProductMapTabs } from "@/components/product-map-tabs";
+import { ProductCatalog } from "@/components/product-catalog";
 import { modules, products, sharedModules } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Ürün-Modül Kataloğu" };
@@ -41,7 +41,7 @@ export default function ProductMapPage() {
           Tüm ürünleri ve modül kapsamlarını tek bir sabit katalog görünümünde inceleyin.
         </p>
       </header>
-      <ProductMapTabs products={mapProducts} sharedModules={catalogSharedModules} />
+      <ProductCatalog products={mapProducts} sharedModules={catalogSharedModules} />
     </div>
   );
 }
