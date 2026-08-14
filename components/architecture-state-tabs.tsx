@@ -15,6 +15,25 @@ const todaySystems = [
   { label: "Bildirim", x: 280, y: 316 },
 ] as const;
 
+const orbitCenter = { x: 460, y: 220 };
+const orbitRadius = 165;
+
+const onsuiteSystems = todaySystems.map((system, index) => {
+  const angle = index * 45;
+  const radians = angle * (Math.PI / 180);
+  const centerX = orbitCenter.x + Math.cos(radians) * orbitRadius;
+  const centerY = orbitCenter.y + Math.sin(radians) * orbitRadius;
+
+  return {
+    label: system.label,
+    angle,
+    centerX,
+    centerY,
+    x: centerX - 75,
+    y: centerY - 27,
+  };
+});
+
 function TodayArchitecture() {
   return (
     <div className="today-architecture-scroll" tabIndex={0} aria-label="Bugünkü sistem bağlantıları, yatay kaydırılabilir">
@@ -63,6 +82,59 @@ function TodayArchitecture() {
   );
 }
 
+function OnSuiteArchitecture() {
+  return (
+    <div className="onsuite-orbit-scroll" tabIndex={0} aria-label="OnSuite bağlantı mimarisi, yatay kaydırılabilir">
+      <div className="onsuite-orbit-canvas">
+        <svg
+          className="onsuite-orbit-lines"
+          viewBox="0 0 920 440"
+          role="img"
+          aria-label="OnSuite merkezinden sekiz sisteme uzanan bağlantılar"
+        >
+          {onsuiteSystems.map((system, index) => (
+            <g key={system.label}>
+              <line
+                x1={orbitCenter.x}
+                y1={orbitCenter.y}
+                x2={system.centerX}
+                y2={system.centerY}
+              />
+              <circle
+                className="onsuite-signal-pulse"
+                cx={orbitCenter.x}
+                cy={orbitCenter.y}
+                r="5"
+                style={{
+                  "--pulse-dx": `${system.centerX - orbitCenter.x}px`,
+                  "--pulse-dy": `${system.centerY - orbitCenter.y}px`,
+                  "--pulse-delay": `${index * 150}ms`,
+                } as CSSProperties}
+              />
+            </g>
+          ))}
+        </svg>
+
+        {onsuiteSystems.map((system) => (
+          <div
+            className="onsuite-orbit-node"
+            data-angle={system.angle}
+            key={system.label}
+            style={{ "--orbit-x": `${system.x}px`, "--orbit-y": `${system.y}px` } as CSSProperties}
+          >
+            {system.label}
+          </div>
+        ))}
+
+        <div className="onsuite-center-hub">
+          <span>Merkez katman</span>
+          <strong>OnSuite</strong>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ArchitectureStateTabs() {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
 
@@ -102,12 +174,11 @@ export function ArchitectureStateTabs() {
         </div>
       ) : (
         <div
-          className="architecture-tab-placeholder"
           id="architecture-panel-onsuite"
           role="tabpanel"
           aria-labelledby="architecture-tab-onsuite"
         >
-          <p>OnSuite ile görünümü sonraki adımda oluşturulacak.</p>
+          <OnSuiteArchitecture />
         </div>
       )}
     </section>
