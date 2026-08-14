@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 53.2 65.42">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: none;
+      }
+
+      .cls-3 {
+        clip-path: url(#clippath-1);
+      }
+
+      .cls-2 {
+        stroke: #02529f;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-width: 3px;
+      }
+
+      .cls-4 {
+        clip-path: url(#clippath-2);
+      }
+
+      .cls-5 {
+        clip-path: url(#clippath);
+      }
+
+      .cls-6 {
+        fill: #02529f;
+      }
+    </style>
+    <clipPath id="clippath">
+      <rect class="cls-1" x="-403.46" y="-193.15" width="841.89" height="595.28"/>
+    </clipPath>
+    <clipPath id="clippath-1">
+      <rect class="cls-1" x="-403.46" y="-193.15" width="841.89" height="595.28"/>
+    </clipPath>
+    <clipPath id="clippath-2">
+      <rect class="cls-1" x="-403.46" y="-193.15" width="841.89" height="595.28"/>
+    </clipPath>
+  </defs>
+  <g class="cls-5">
+    <g class="cls-3">
+      <g class="cls-4">
+        <path class="cls-6" d="M49.11,60.63H4.09V4.26h45.02v56.36ZM49.11,1.26H4.09c-1.66,0-3,1.34-3,3v56.36c0,1.66,1.34,3,3,3h45.02c1.66,0,3-1.34,3-3V4.26c0-1.66-1.34-3-3-3"/>
+        <line class="cls-2" x1="43.18" y1="16.1" x2="10.07" y2="16.1"/>
+        <line class="cls-2" x1="43.18" y1="25.16" x2="10.07" y2="25.16"/>
+        <line class="cls-2" x1="31.55" y1="34.16" x2="10.07" y2="34.16"/>
+        <polyline class="cls-2" points="29.12 47.27 34.16 52.3 43.19 43.26"/>
+      </g>
+    </g>
+  </g>
+</svg>

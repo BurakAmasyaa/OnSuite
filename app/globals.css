@@ -480,9 +480,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   background: var(--product-icon-bg);
   color: var(--product-icon-ink);
 }
-.product-icon-tile svg { width: 17px; height: 17px; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.65; }
+.product-icon-tile svg, .product-icon-tile img { width: 17px; height: 17px; object-fit: contain; }
+.product-icon-tile svg { stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.65; }
 .product-grid-card .product-icon-tile { width: 46px; height: 46px; border-radius: 13px; }
-.product-grid-card .product-icon-tile svg { width: 25px; height: 25px; }
+.product-grid-card .product-icon-tile svg, .product-grid-card .product-icon-tile img { width: 25px; height: 25px; }
 .product-icon-tile-core { --product-icon-bg: #e5f1ff; --product-icon-ink: #3171a6; }
 .product-icon-tile-connect { --product-icon-bg: #dff7f3; --product-icon-ink: #147b70; }
 .product-icon-tile-cnc { --product-icon-bg: #eceff3; --product-icon-ink: #59616d; }

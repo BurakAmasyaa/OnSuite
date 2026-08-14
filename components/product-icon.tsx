@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export type ProductIconKey =
   | "core"
   | "connect"
@@ -32,6 +34,20 @@ export const productIconByCode: Record<string, ProductIconKey> = {
   APPROVE: "approve",
   ENGAGE: "engage",
   INFORM: "inform",
+};
+
+const siskonIconSource: Partial<Record<ProductIconKey, string>> = {
+  core: "/icons/products/core.svg",
+  connect: "/icons/products/connect.svg",
+  cnc: "/icons/products/cnc.svg",
+  live: "/icons/products/live.svg",
+  optima: "/icons/products/optima.svg",
+  trace: "/icons/products/trace.svg",
+  forms: "/icons/products/forms.svg",
+  tmc: "/icons/products/tmc.svg",
+  energy: "/icons/products/energy.svg",
+  green: "/icons/products/green.svg",
+  integra: "/icons/products/integra.svg",
 };
 
 function IconArtwork({ icon }: { icon: ProductIconKey }) {
@@ -72,11 +88,21 @@ function IconArtwork({ icon }: { icon: ProductIconKey }) {
 }
 
 export function ProductIcon({ icon }: { icon: ProductIconKey }) {
+  const realIconSource = siskonIconSource[icon];
+
   return (
-    <span className={`product-icon-tile product-icon-tile-${icon}`} aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" focusable="false">
-        <IconArtwork icon={icon} />
-      </svg>
+    <span
+      className={`product-icon-tile product-icon-tile-${icon}`}
+      data-icon-source={realIconSource ? "siskon" : "placeholder"}
+      aria-hidden="true"
+    >
+      {realIconSource ? (
+        <Image src={realIconSource} alt="" width={28} height={28} unoptimized />
+      ) : (
+        <svg viewBox="0 0 24 24" fill="none" focusable="false">
+          <IconArtwork icon={icon} />
+        </svg>
+      )}
     </span>
   );
 }
