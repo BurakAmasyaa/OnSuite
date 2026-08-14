@@ -77,7 +77,7 @@ export function ProductMapTabs({ products }: { products: ProductSummary[] }) {
         <h2 id="product-map-tabs-title">Ürün ve modül kapsamı</h2>
       </div>
 
-      <div className="product-map-tab-list" role="tablist" aria-label="Ürün haritası görünümü">
+      <div className="product-map-tab-list" role="tablist" aria-label="Ürün kataloğu görünümü">
         <button
           id="product-map-tab-products"
           type="button"

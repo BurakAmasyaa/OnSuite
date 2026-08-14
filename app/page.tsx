@@ -14,7 +14,7 @@ export default function HomePage() {
           build-time verileriyle inceleyin.
         </p>
         <div className="hero-actions">
-          <Link className="button button-primary" href="/harita">Haritayı aç</Link>
+          <Link className="button button-primary" href="/harita">Kataloğu incele</Link>
           <Link className="button button-secondary" href="/mimari">Mimariyi incele</Link>
         </div>
       </section>
