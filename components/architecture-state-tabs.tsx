@@ -35,15 +35,27 @@ const onsuiteSystems = todaySystems.map((system, index) => {
   };
 });
 
+function DeviceAccessCard({ className, label }: { className: string; label: string }) {
+  return (
+    <div className={`architecture-device-card ${className}`}>
+      <svg aria-hidden="true" viewBox="0 0 32 32">
+        <rect x="5" y="5" width="22" height="16" rx="2.5" />
+        <path d="M12 27h8M16 21v6M3 25h26" />
+      </svg>
+      <span>{label}</span>
+    </div>
+  );
+}
+
 function TodayArchitecture() {
   return (
     <div className="today-architecture-scroll" tabIndex={0} aria-label="Bugünkü sistem bağlantıları, yatay kaydırılabilir">
       <div className="today-architecture-canvas">
         <svg
           className="today-architecture-lines"
-          viewBox="0 0 920 410"
+          viewBox="0 0 920 520"
           role="img"
-          aria-label="Sekiz sistemden yeni sisteme uzanan bağlantı çizgileri"
+          aria-label="Sekiz sistem ve kontrol kartından bağlantı talebine uzanan bağlantı çizgileri"
         >
           <line className="is-solid" x1="220" y1="65" x2="720" y2="198" />
           <line className="is-dashed" x1="460" y1="65" x2="720" y2="210" />
@@ -53,6 +65,10 @@ function TodayArchitecture() {
           <line className="is-dashed" x1="460" y1="253" x2="720" y2="210" />
           <line className="is-dashed" x1="220" y1="347" x2="720" y2="198" />
           <line className="is-solid" x1="460" y1="347" x2="720" y2="222" />
+          <polyline
+            className="is-dashed today-device-line"
+            points="190,466 804,466 804,248"
+          />
 
           <g className="today-warning-marker" transform="translate(508 199)">
             <circle r="11" />
@@ -78,6 +94,8 @@ function TodayArchitecture() {
           <span>Bağlantı talebi</span>
           <strong>Yeni Sistem Ekleniyor...</strong>
         </div>
+
+        <DeviceAccessCard className="today-device-card" label="Tek tek kontrol" />
       </div>
     </div>
   );
@@ -91,7 +109,7 @@ function OnSuiteArchitecture() {
           className="onsuite-orbit-lines"
           viewBox={`0 0 ${orbitCanvas.width} ${orbitCanvas.height}`}
           role="img"
-          aria-label="OnSuite merkezinden sekiz sisteme uzanan bağlantılar"
+          aria-label="OnSuite merkezinden sekiz sisteme ve cihaz erişim kartına uzanan bağlantılar"
         >
           {onsuiteSystems.map((system, index) => (
             <g key={system.label}>
@@ -114,6 +132,10 @@ function OnSuiteArchitecture() {
               />
             </g>
           ))}
+          <polyline
+            className="onsuite-access-line"
+            points="575,275 330,350 330,488 230,488"
+          />
         </svg>
 
         {onsuiteSystems.map((system) => (
@@ -131,6 +153,11 @@ function OnSuiteArchitecture() {
           <span>Merkez katman</span>
           <strong>OnSuite</strong>
         </div>
+
+        <DeviceAccessCard
+          className="onsuite-device-card"
+          label="Her cihazdan erişim"
+        />
       </div>
     </div>
   );
