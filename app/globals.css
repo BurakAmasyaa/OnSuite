@@ -161,6 +161,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   background: var(--brand);
   content: "";
 }
+.architecture-tab-stage { min-height: 550px; }
 .today-architecture-scroll { overflow-x: auto; overscroll-behavior-inline: contain; scrollbar-color: var(--gray-400) transparent; }
 .today-architecture-scroll:focus-visible { outline: 2px solid var(--brand); outline-offset: -3px; }
 .today-architecture-canvas { position: relative; width: 920px; height: 520px; min-width: 920px; }

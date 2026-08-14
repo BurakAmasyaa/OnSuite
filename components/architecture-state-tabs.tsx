@@ -214,20 +214,22 @@ export function ArchitectureStateTabs() {
         </button>
       </div>
 
-      <AnimatePresence initial={false} mode="wait">
-        <motion.div
-          key={activeTab}
-          id={`architecture-panel-${activeTab}`}
-          role="tabpanel"
-          aria-labelledby={`architecture-tab-${activeTab}`}
-          initial={prefersReducedMotion ? false : { opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeInOut" }}
-        >
-          {activeTab === "today" ? <TodayArchitecture /> : <OnSuiteArchitecture />}
-        </motion.div>
-      </AnimatePresence>
+      <div className="architecture-tab-stage">
+        <AnimatePresence initial={false} mode="wait">
+          <motion.div
+            key={activeTab}
+            id={`architecture-panel-${activeTab}`}
+            role="tabpanel"
+            aria-labelledby={`architecture-tab-${activeTab}`}
+            initial={prefersReducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeInOut" }}
+          >
+            {activeTab === "today" ? <TodayArchitecture /> : <OnSuiteArchitecture />}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </section>
   );
 }
