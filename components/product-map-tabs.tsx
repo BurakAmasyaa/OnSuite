@@ -2,7 +2,7 @@
 
 import { useState, type CSSProperties } from "react";
 
-type ProductTab = "products" | "shared";
+type ProductTab = "products" | "shared" | "packages";
 
 type ProductSummary = {
   code: string;
@@ -27,6 +27,16 @@ type GridPosition = {
   mobileRow: number;
 };
 
+type PackageGroup = {
+  name: string;
+  moduleCount: number;
+  products: Array<{
+    name: string;
+    initial: string;
+  }>;
+  position: GridPosition;
+};
+
 const productGridPositions: Record<string, GridPosition> = {
   CORE: { desktopColumn: 1, desktopRow: 1, tabletColumn: 1, tabletRow: 1, mobileRow: 1 },
   CONNECTIVITY: { desktopColumn: 2, desktopRow: 1, tabletColumn: 2, tabletRow: 1, mobileRow: 2 },
@@ -44,6 +54,63 @@ const productGridPositions: Record<string, GridPosition> = {
   ENGAGE: { desktopColumn: 4, desktopRow: 3, tabletColumn: 2, tabletRow: 5, mobileRow: 14 },
   INFORM: { desktopColumn: 5, desktopRow: 3, tabletColumn: 3, tabletRow: 5, mobileRow: 15 },
 };
+
+const packageGroups: PackageGroup[] = [
+  {
+    name: "Endüstriyel İletişim",
+    moduleCount: 2,
+    products: [{ name: "Connect", initial: "C" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 1, desktopRow: 1, tabletColumn: 1, tabletRow: 1, mobileRow: 1 },
+  },
+  {
+    name: "CNC Entegrasyonu",
+    moduleCount: 3,
+    products: [{ name: "CNC", initial: "C" }, { name: "Connect", initial: "C" }, { name: "Live", initial: "L" }],
+    position: { desktopColumn: 2, desktopRow: 1, tabletColumn: 2, tabletRow: 1, mobileRow: 2 },
+  },
+  {
+    name: "Gerçek Zamanlı İzleme",
+    moduleCount: 3,
+    products: [{ name: "Live", initial: "L" }, { name: "Connect", initial: "C" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 3, desktopRow: 1, tabletColumn: 1, tabletRow: 2, mobileRow: 3 },
+  },
+  {
+    name: "Performans ve OEE",
+    moduleCount: 3,
+    products: [{ name: "Optima", initial: "O" }, { name: "Live", initial: "L" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 1, desktopRow: 2, tabletColumn: 2, tabletRow: 2, mobileRow: 4 },
+  },
+  {
+    name: "Ürün İzlenebilirliği",
+    moduleCount: 3,
+    products: [{ name: "Trace", initial: "T" }, { name: "Forms", initial: "F" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 2, desktopRow: 2, tabletColumn: 1, tabletRow: 3, mobileRow: 5 },
+  },
+  {
+    name: "Dijital Saha Süreçleri",
+    moduleCount: 2,
+    products: [{ name: "Forms", initial: "F" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 3, desktopRow: 2, tabletColumn: 2, tabletRow: 3, mobileRow: 6 },
+  },
+  {
+    name: "Kurumsal Sistem Entegrasyonu",
+    moduleCount: 2,
+    products: [{ name: "Integra", initial: "I" }, { name: "Core", initial: "C" }],
+    position: { desktopColumn: 1, desktopRow: 3, tabletColumn: 1, tabletRow: 4, mobileRow: 7 },
+  },
+  {
+    name: "Enerji Görünürlüğü",
+    moduleCount: 2,
+    products: [{ name: "Energy", initial: "E" }, { name: "Connect", initial: "C" }],
+    position: { desktopColumn: 2, desktopRow: 3, tabletColumn: 2, tabletRow: 4, mobileRow: 8 },
+  },
+  {
+    name: "Tütün Makinesi Entegrasyonu",
+    moduleCount: 3,
+    products: [{ name: "TMC", initial: "T" }, { name: "Connect", initial: "C" }, { name: "Live", initial: "L" }],
+    position: { desktopColumn: 3, desktopRow: 3, tabletColumn: 1, tabletRow: 5, mobileRow: 9 },
+  },
+];
 
 function ProductsGrid({ products }: { products: ProductSummary[] }) {
   return (
@@ -101,6 +168,39 @@ function SharedModulesList({ modules }: { modules: SharedModuleSummary[] }) {
   );
 }
 
+function PackageGroupsGrid() {
+  return (
+    <div className="package-fixed-grid" aria-label="İhtiyaca göre paketler">
+      {packageGroups.map((group) => (
+        <article
+          className="package-group-card"
+          key={group.name}
+          style={{
+            "--package-column": group.position.desktopColumn,
+            "--package-row": group.position.desktopRow,
+            "--package-tablet-column": group.position.tabletColumn,
+            "--package-tablet-row": group.position.tabletRow,
+            "--package-mobile-row": group.position.mobileRow,
+          } as CSSProperties}
+        >
+          <div className="package-group-card-heading">
+            <h3>{group.name}</h3>
+            <span className="package-module-count">{group.moduleCount} MODÜL</span>
+          </div>
+          <div className="package-product-tags" aria-label={`${group.name} ürünleri`}>
+            {group.products.map((product) => (
+              <span className="package-product-tag" key={product.name}>
+                <span className="package-product-initial" aria-hidden="true">{product.initial}</span>
+                {product.name}
+              </span>
+            ))}
+          </div>
+        </article>
+      ))}
+    </div>
+  );
+}
+
 export function ProductMapTabs({
   products,
   sharedModules,
@@ -138,6 +238,16 @@ export function ProductMapTabs({
         >
           Paylaşılan Modüller
         </button>
+        <button
+          id="product-map-tab-packages"
+          type="button"
+          role="tab"
+          aria-controls="product-map-panel-packages"
+          aria-selected={activeTab === "packages"}
+          onClick={() => setActiveTab("packages")}
+        >
+          İhtiyaca Göre Paketler
+        </button>
       </div>
 
       {activeTab === "products" ? (
@@ -148,13 +258,21 @@ export function ProductMapTabs({
         >
           <ProductsGrid products={products} />
         </div>
-      ) : (
+      ) : activeTab === "shared" ? (
         <div
           id="product-map-panel-shared"
           role="tabpanel"
           aria-labelledby="product-map-tab-shared"
         >
           <SharedModulesList modules={sharedModules} />
+        </div>
+      ) : (
+        <div
+          id="product-map-panel-packages"
+          role="tabpanel"
+          aria-labelledby="product-map-tab-packages"
+        >
+          <PackageGroupsGrid />
         </div>
       )}
     </section>
