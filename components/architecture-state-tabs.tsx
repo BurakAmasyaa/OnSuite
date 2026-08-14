@@ -1,5 +1,6 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState, type CSSProperties } from "react";
 
 type ArchitectureTab = "today" | "onsuite";
@@ -181,6 +182,7 @@ function OnSuiteArchitecture() {
 
 export function ArchitectureStateTabs() {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
+  const prefersReducedMotion = useReducedMotion();
 
   return (
     <section className="architecture-state-tabs" aria-labelledby="architecture-state-title">
@@ -212,19 +214,20 @@ export function ArchitectureStateTabs() {
         </button>
       </div>
 
-      {activeTab === "today" ? (
-        <div id="architecture-panel-today" role="tabpanel" aria-labelledby="architecture-tab-today">
-          <TodayArchitecture />
-        </div>
-      ) : (
-        <div
-          id="architecture-panel-onsuite"
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={activeTab}
+          id={`architecture-panel-${activeTab}`}
           role="tabpanel"
-          aria-labelledby="architecture-tab-onsuite"
+          aria-labelledby={`architecture-tab-${activeTab}`}
+          initial={prefersReducedMotion ? false : { opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeInOut" }}
         >
-          <OnSuiteArchitecture />
-        </div>
-      )}
+          {activeTab === "today" ? <TodayArchitecture /> : <OnSuiteArchitecture />}
+        </motion.div>
+      </AnimatePresence>
     </section>
   );
 }
