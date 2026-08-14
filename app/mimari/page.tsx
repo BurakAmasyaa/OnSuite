@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import type { CSSProperties } from "react";
+import { ArchitectureStateTabs } from "@/components/architecture-state-tabs";
 import { products } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -20,40 +20,6 @@ const fieldTechnologies = [
 ];
 
 const integrationSystems = ["SAP", "Oracle", "Logo", "Netsis", "WMS"];
-
-const sceneProtocols = [
-  { name: "Siemens S7", before: [8, 14], after: [8, 12] },
-  { name: "Beckhoff", before: [38, 8], after: [35, 10] },
-  { name: "Allen-Bradley", before: [72, 15], after: [72, 12] },
-  { name: "Modbus", before: [82, 42], after: [84, 45] },
-  { name: "OPC DA", before: [66, 70], after: [73, 76] },
-  { name: "OPC UA", before: [40, 80], after: [48, 84] },
-  { name: "Mitsubishi", before: [13, 70], after: [18, 76] },
-  { name: "MQTT", before: [4, 43], after: [4, 45] },
-  { name: "TCP/IP", before: [45, 40], after: [48, 9] },
-] as const;
-
-const fragmentedLines = [
-  [14, 20, 69, 34, 0],
-  [41, 15, 43, 57, -0.6],
-  [77, 22, 47, 132, -1.1],
-  [11, 50, 61, -21, -0.4],
-  [19, 76, 58, -45, -0.9],
-  [47, 46, 39, 33, -1.2],
-  [45, 84, 42, -47, -0.2],
-] as const;
-
-const connectedLines = [
-  [50, 50, 45, -159, 0],
-  [50, 50, 28, -132, -0.3],
-  [50, 50, 37, -31, -0.6],
-  [50, 50, 34, -4, -0.9],
-  [50, 50, 35, 34, -1.2],
-  [50, 50, 29, 87, -1.5],
-  [50, 50, 38, 143, -1.8],
-  [50, 50, 43, 177, -2.1],
-  [50, 50, 34, -91, -2.4],
-] as const;
 
 const productModules = products
   .filter((product) => product.AppProductCode !== "CORE" && product.AppProductCode !== "CONNECTIVITY")
@@ -94,69 +60,6 @@ function FlowArrow() {
   return <div className="architecture-arrow" aria-hidden="true"><span>↓</span></div>;
 }
 
-function ProtocolBadge({ name, position }: { name: string; position: readonly [number, number] }) {
-  return (
-    <span
-      className="protocol-scene-badge"
-      style={{ "--badge-x": `${position[0]}%`, "--badge-y": `${position[1]}%` } as CSSProperties}
-    >
-      {name}
-    </span>
-  );
-}
-
-function ProtocolLine({ line }: { line: readonly [number, number, number, number, number] }) {
-  return (
-    <span
-      className="protocol-scene-line"
-      style={{
-        "--line-x": `${line[0]}%`,
-        "--line-y": `${line[1]}%`,
-        "--line-length": `${line[2]}%`,
-        "--line-angle": `${line[3]}deg`,
-        "--line-delay": `${line[4]}s`,
-      } as CSSProperties}
-    />
-  );
-}
-
-function ProtocolTransformation() {
-  return (
-    <section className="protocol-transformation" aria-labelledby="protocol-transformation-title">
-      <div className="protocol-transformation-heading">
-        <p className="eyebrow">Bağlantı karmaşasından ortak dile</p>
-        <h2 id="protocol-transformation-title">
-          9 farklı protokol, 9 ayrı entegrasyon — ya da tek katman.
-        </h2>
-      </div>
-
-      <div className="protocol-scene" aria-label="Saha protokollerinin Connect katmanında birleşmesi">
-        <div className="protocol-scene-state protocol-scene-before" aria-hidden="true">
-          <span className="protocol-scene-state-label">Dağınık yapı</span>
-          {fragmentedLines.map((line, index) => <ProtocolLine key={index} line={line} />)}
-          {sceneProtocols.map((protocol) => (
-            <ProtocolBadge key={protocol.name} name={protocol.name} position={protocol.before} />
-          ))}
-          <span className="protocol-warning protocol-warning-one">!</span>
-          <span className="protocol-warning protocol-warning-two">!</span>
-        </div>
-
-        <div className="protocol-scene-state protocol-scene-after">
-          <span className="protocol-scene-state-label">OnSuite ile</span>
-          {connectedLines.map((line, index) => <ProtocolLine key={index} line={line} />)}
-          {sceneProtocols.map((protocol) => (
-            <ProtocolBadge key={protocol.name} name={protocol.name} position={protocol.after} />
-          ))}
-          <div className="protocol-connect-hub">
-            <span>OnSuite</span>
-            <strong>Connect</strong>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function ArchitecturePage() {
   return (
     <div className="page-shell architecture-page">
@@ -169,7 +72,7 @@ export default function ArchitecturePage() {
         </p>
       </header>
 
-      <ProtocolTransformation />
+      <ArchitectureStateTabs />
 
       <section className="architecture-stack" aria-label="OnSuite üretim mimarisi katmanları">
         <ArchitectureLayer
