@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 
 type ArchitectureTab = "today" | "onsuite";
 
@@ -182,7 +182,28 @@ function OnSuiteArchitecture() {
 
 export function ArchitectureStateTabs() {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
+  const [autoCycleEnabled, setAutoCycleEnabled] = useState(true);
   const prefersReducedMotion = useReducedMotion();
+
+  useEffect(() => {
+    if (prefersReducedMotion || !autoCycleEnabled) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setActiveTab((currentTab) => currentTab === "today" ? "onsuite" : "today");
+    }, 4800);
+
+    return () => window.clearTimeout(timer);
+  }, [activeTab, autoCycleEnabled, prefersReducedMotion]);
+
+  const handleTabClick = (nextTab: ArchitectureTab) => {
+    setActiveTab(nextTab);
+
+    if (!prefersReducedMotion) {
+      setAutoCycleEnabled((isEnabled) => !isEnabled);
+    }
+  };
 
   return (
     <section className="architecture-state-tabs" aria-labelledby="architecture-state-title">
@@ -198,7 +219,7 @@ export function ArchitectureStateTabs() {
           role="tab"
           aria-controls="architecture-panel-today"
           aria-selected={activeTab === "today"}
-          onClick={() => setActiveTab("today")}
+          onClick={() => handleTabClick("today")}
         >
           Bugün
         </button>
@@ -208,13 +229,16 @@ export function ArchitectureStateTabs() {
           role="tab"
           aria-controls="architecture-panel-onsuite"
           aria-selected={activeTab === "onsuite"}
-          onClick={() => setActiveTab("onsuite")}
+          onClick={() => handleTabClick("onsuite")}
         >
           OnSuite ile
         </button>
       </div>
 
-      <div className="architecture-tab-stage">
+      <div
+        className="architecture-tab-stage"
+        onMouseEnter={() => setAutoCycleEnabled(false)}
+      >
         <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={activeTab}
