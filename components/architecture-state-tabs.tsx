@@ -69,6 +69,12 @@ function TodayArchitecture() {
             className="is-dashed today-device-line"
             points="190,466 804,466 804,248"
           />
+          <circle
+            className="today-device-signal"
+            cx="190"
+            cy="466"
+            r="5"
+          />
 
           <g className="today-warning-marker" transform="translate(508 199)">
             <circle r="11" />
@@ -135,6 +141,12 @@ function OnSuiteArchitecture() {
           <polyline
             className="onsuite-access-line"
             points="575,275 330,350 330,488 230,488"
+          />
+          <circle
+            className="onsuite-access-signal"
+            cx="230"
+            cy="488"
+            r="5"
           />
         </svg>
 
