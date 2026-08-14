@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
 
 type ArchitectureTab = "today" | "onsuite";
 
@@ -183,10 +183,11 @@ function OnSuiteArchitecture() {
 export function ArchitectureStateTabs() {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
   const [autoCycleEnabled, setAutoCycleEnabled] = useState(true);
+  const [isHoverPaused, setIsHoverPaused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
   useEffect(() => {
-    if (prefersReducedMotion || !autoCycleEnabled) {
+    if (prefersReducedMotion || !autoCycleEnabled || isHoverPaused) {
       return;
     }
 
@@ -195,13 +196,19 @@ export function ArchitectureStateTabs() {
     }, 4800);
 
     return () => window.clearTimeout(timer);
-  }, [activeTab, autoCycleEnabled, prefersReducedMotion]);
+  }, [activeTab, autoCycleEnabled, isHoverPaused, prefersReducedMotion]);
 
   const handleTabClick = (nextTab: ArchitectureTab) => {
     setActiveTab(nextTab);
 
     if (!prefersReducedMotion) {
       setAutoCycleEnabled((isEnabled) => !isEnabled);
+    }
+  };
+
+  const handleDiagramMouseEnter = (event: MouseEvent<HTMLDivElement>) => {
+    if (event.relatedTarget !== null) {
+      setIsHoverPaused(true);
     }
   };
 
@@ -237,7 +244,8 @@ export function ArchitectureStateTabs() {
 
       <div
         className="architecture-tab-stage"
-        onMouseEnter={() => setAutoCycleEnabled(false)}
+        onMouseEnter={handleDiagramMouseEnter}
+        onMouseLeave={() => setIsHoverPaused(false)}
       >
         <AnimatePresence initial={false} mode="wait">
           <motion.div
