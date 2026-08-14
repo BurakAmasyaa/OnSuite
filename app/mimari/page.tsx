@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { ArchitectureStateTabs } from "@/components/architecture-state-tabs";
+import { ArchitectureTierStack } from "@/components/architecture-tier-stack";
 import {
   ProductIcon,
   productIconByCode,
@@ -159,7 +160,7 @@ export default function ArchitecturePage() {
 
       <ArchitectureStateTabs />
 
-      <section className="architecture-stack" aria-label="OnSuite üretim mimarisi katmanları">
+      <ArchitectureTierStack>
         <ArchitectureLayer
           number="01"
           eyebrow="Verinin kaynağı"
@@ -203,7 +204,7 @@ export default function ArchitecturePage() {
           tone="output"
           tierIcon="integra"
         />
-      </section>
+      </ArchitectureTierStack>
     </div>
   );
 }
