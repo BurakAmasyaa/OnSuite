@@ -298,6 +298,18 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   content: "";
   filter: blur(2px);
 }
+.architecture-layer-pattern {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  color: var(--architecture-accent);
+  opacity: 0.045;
+  pointer-events: none;
+}
+.architecture-layer-core .architecture-layer-pattern { opacity: 0.055; }
+.architecture-layer-modules .architecture-layer-pattern { opacity: 0.04; }
 .architecture-layer-field { --architecture-bg: var(--gray-50); --architecture-line: var(--gray-300); --architecture-accent: var(--brand); --architecture-badge: var(--white); --architecture-glow: rgba(var(--brand-rgb), 0.06); }
 .architecture-layer-core { --architecture-bg: var(--brand); --architecture-line: rgba(255, 255, 255, 0.25); --architecture-accent: var(--white); --architecture-badge: rgba(255, 255, 255, 0.12); --architecture-glow: rgba(255, 255, 255, 0.08); color: var(--white); }
 .architecture-layer-modules { --architecture-bg: var(--gray-100); --architecture-line: var(--gray-300); --architecture-accent: var(--brand); --architecture-badge: var(--white); --architecture-glow: rgba(var(--brand-rgb), 0.05); }
