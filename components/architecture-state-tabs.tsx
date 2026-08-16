@@ -66,7 +66,7 @@ function TodayArchitecture() {
           <line className="today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms" } as CSSProperties} />
           <line className="today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms" } as CSSProperties} />
           <line className="today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="220" y1="441" x2="720" y2="213" style={{ "--connector-delay": "800ms" } as CSSProperties} />
+          <line className="today-grid-connector today-device-connector" x1="550" y1="441" x2="720" y2="213" style={{ "--connector-delay": "800ms" } as CSSProperties} />
         </svg>
 
         {todaySystems.map((system, index) => (
@@ -127,7 +127,7 @@ function OnSuiteArchitecture() {
           ))}
           <polyline
             className="onsuite-access-line"
-            points="575,275 330,350 330,448 200,448"
+            points="575,275 330,350 330,448 530,448"
           />
           <circle
             className="onsuite-access-signal"
