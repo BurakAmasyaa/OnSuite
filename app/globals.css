@@ -227,6 +227,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 }
 .today-device-card svg { width: 24px; height: 24px; }
 .today-device-card span { margin-top: 0; }
+.today-device-signal,
 .onsuite-access-signal {
   display: none;
   fill: var(--brand);
@@ -397,6 +398,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     animation: onsuite-signal-travel 2s linear infinite;
     animation-delay: var(--pulse-delay);
   }
+  .today-device-signal {
+    display: block;
+    animation: today-device-signal-travel 3.6s linear infinite;
+  }
   .onsuite-access-signal {
     display: block;
     animation: onsuite-access-signal-travel 2.2s linear infinite;
@@ -417,6 +422,19 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     1% { opacity: 1; }
     99% { opacity: 1; stroke-dasharray: 800; stroke-dashoffset: 0; }
     100% { opacity: 1; stroke-dashoffset: 0; }
+  }
+  @keyframes today-device-signal-travel {
+    0% { opacity: 0; fill: var(--brand); transform: translate(0, 0); }
+    7% { opacity: 1; }
+    38% { fill: var(--brand); transform: translate(72px, -96px); }
+    47% { fill: var(--brand); transform: translate(83px, -111px); }
+    48% { fill: #b86800; transform: translate(85px, -114px); }
+    61% { fill: #b86800; transform: translate(88px, -118px); }
+    62% { fill: var(--brand); transform: translate(91px, -122px); }
+    69% { transform: translate(110px, -148px); }
+    78% { transform: translate(140px, -188px); }
+    93% { opacity: 1; }
+    100% { opacity: 0; fill: var(--brand); transform: translate(170px, -228px); }
   }
   @keyframes onsuite-access-signal-travel {
     0% { opacity: 0; transform: translate(0, 0); }
