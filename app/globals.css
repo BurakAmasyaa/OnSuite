@@ -393,6 +393,14 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     animation: today-grid-connector-enter 300ms ease-out both;
     animation-delay: var(--connector-delay);
   }
+  .today-grid-connector:not(.today-device-connector) {
+    animation-name: today-grid-connector-enter, today-connection-flicker;
+    animation-duration: 300ms, var(--flicker-duration);
+    animation-timing-function: ease-out, linear;
+    animation-delay: var(--connector-delay), var(--flicker-delay);
+    animation-iteration-count: 1, infinite;
+    animation-fill-mode: both, none;
+  }
   .onsuite-signal-pulse {
     display: block;
     animation: onsuite-signal-travel 2s linear infinite;
@@ -422,6 +430,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     1% { opacity: 1; }
     99% { opacity: 1; stroke-dasharray: 800; stroke-dashoffset: 0; }
     100% { opacity: 1; stroke-dashoffset: 0; }
+  }
+  @keyframes today-connection-flicker {
+    0%, 70%, 74%, 100% { opacity: 1; }
+    71.5% { opacity: 0.38; }
   }
   @keyframes today-device-signal-travel {
     0% { opacity: 0; fill: var(--brand); transform: translate(0, 0); }

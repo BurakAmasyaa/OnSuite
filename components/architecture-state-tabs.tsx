@@ -58,14 +58,14 @@ function TodayArchitecture() {
           role="img"
           aria-label="Dokuz sistem ve kontrol kartından bağlantı talebine uzanan bağlantı çizgileri"
         >
-          <line className="today-grid-connector" x1="220" y1="65" x2="720" y2="213" style={{ "--connector-delay": "160ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="460" y1="65" x2="720" y2="213" style={{ "--connector-delay": "240ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="220" y1="159" x2="720" y2="213" style={{ "--connector-delay": "320ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="460" y1="159" x2="720" y2="213" style={{ "--connector-delay": "400ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="220" y1="253" x2="720" y2="213" style={{ "--connector-delay": "480ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms" } as CSSProperties} />
-          <line className="today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="65" x2="720" y2="213" style={{ "--connector-delay": "160ms", "--flicker-duration": "5.8s", "--flicker-delay": "2.4s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="65" x2="720" y2="213" style={{ "--connector-delay": "240ms", "--flicker-duration": "7.1s", "--flicker-delay": "4.1s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="159" x2="720" y2="213" style={{ "--connector-delay": "320ms", "--flicker-duration": "6.4s", "--flicker-delay": "3.2s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="159" x2="720" y2="213" style={{ "--connector-delay": "400ms", "--flicker-duration": "8.2s", "--flicker-delay": "5s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="253" x2="720" y2="213" style={{ "--connector-delay": "480ms", "--flicker-duration": "6.8s", "--flicker-delay": "2.8s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms", "--flicker-duration": "7.6s", "--flicker-delay": "4.6s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms", "--flicker-duration": "5.9s", "--flicker-delay": "3.7s" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms", "--flicker-duration": "8.7s", "--flicker-delay": "5.4s" } as CSSProperties} />
           <line className="today-grid-connector today-device-connector" x1="500" y1="489" x2="720" y2="213" style={{ "--connector-delay": "800ms" } as CSSProperties} />
           <circle className="today-device-signal" cx="500" cy="489" r="5" />
         </svg>
