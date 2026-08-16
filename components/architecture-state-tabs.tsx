@@ -56,35 +56,17 @@ function TodayArchitecture() {
           className="today-architecture-lines"
           viewBox="0 0 920 520"
           role="img"
-          aria-label="Sekiz sistem ve kontrol kartından bağlantı talebine uzanan bağlantı çizgileri"
+          aria-label="Dokuz sistem ve kontrol kartından bağlantı talebine uzanan bağlantı çizgileri"
         >
-          <line className="is-solid today-grid-connector" x1="220" y1="65" x2="720" y2="213" style={{ "--connector-delay": "160ms" } as CSSProperties} />
-          <line className="is-dashed today-grid-connector" x1="460" y1="65" x2="720" y2="213" style={{ "--connector-delay": "240ms" } as CSSProperties} />
-          <line className="is-dashed today-grid-connector" x1="220" y1="159" x2="720" y2="213" style={{ "--connector-delay": "320ms" } as CSSProperties} />
-          <line className="is-solid today-grid-connector" x1="460" y1="159" x2="720" y2="213" style={{ "--connector-delay": "400ms" } as CSSProperties} />
-          <line className="is-solid today-grid-connector" x1="220" y1="253" x2="720" y2="213" style={{ "--connector-delay": "480ms" } as CSSProperties} />
-          <line className="is-dashed today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms" } as CSSProperties} />
-          <line className="is-dashed today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms" } as CSSProperties} />
-          <line className="is-solid today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms" } as CSSProperties} />
-          <polyline
-            className="is-dashed today-device-line"
-            points="190,466 804,466 804,248"
-          />
-          <circle
-            className="today-device-signal"
-            cx="190"
-            cy="466"
-            r="5"
-          />
-
-          <g className="today-warning-marker" transform="translate(508 199)">
-            <circle r="11" />
-            <text textAnchor="middle" y="4">!</text>
-          </g>
-          <g className="today-warning-marker" transform="translate(605 232)">
-            <circle r="11" />
-            <text textAnchor="middle" y="4">!</text>
-          </g>
+          <line className="today-grid-connector" x1="220" y1="65" x2="720" y2="213" style={{ "--connector-delay": "160ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="65" x2="720" y2="213" style={{ "--connector-delay": "240ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="159" x2="720" y2="213" style={{ "--connector-delay": "320ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="159" x2="720" y2="213" style={{ "--connector-delay": "400ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="253" x2="720" y2="213" style={{ "--connector-delay": "480ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="253" x2="720" y2="213" style={{ "--connector-delay": "560ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="347" x2="720" y2="213" style={{ "--connector-delay": "640ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="460" y1="347" x2="720" y2="213" style={{ "--connector-delay": "720ms" } as CSSProperties} />
+          <line className="today-grid-connector" x1="220" y1="441" x2="720" y2="213" style={{ "--connector-delay": "800ms" } as CSSProperties} />
         </svg>
 
         {todaySystems.map((system, index) => (
