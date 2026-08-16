@@ -11,6 +11,9 @@ export const metadata: Metadata = {
     default: "OnSuite Ürün Mimarisi",
     template: "%s · OnSuite",
   },
+  icons: {
+    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
+  },
   description: "OnSuite ürünlerini, modüllerini ve paylaşılan yeteneklerini keşfedin.",
   openGraph: {
     title: "OnSuite Ürün Mimarisi",
