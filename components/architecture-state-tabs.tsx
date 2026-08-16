@@ -128,7 +128,7 @@ function OnSuiteArchitecture() {
           ))}
           <polyline
             className="onsuite-access-line"
-            points="575,275 330,350 330,496 480,496"
+            points="575,275 225,360 225,496 260,496"
           />
           <circle
             className="onsuite-access-signal"
