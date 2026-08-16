@@ -215,8 +215,8 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-device-card svg { width: 28px; height: 28px; fill: none; stroke: var(--brand); stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
 .architecture-device-card span { margin-top: 5px; font-size: var(--text-sm); font-weight: var(--weight-bold); line-height: 1.15; }
 .today-device-card {
-  top: 410px;
-  left: 370px;
+  top: 458px;
+  left: 320px;
   width: 180px;
   height: 62px;
   grid-template-columns: auto 1fr;
@@ -279,7 +279,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 }
 .onsuite-center-hub span { max-width: 70px; justify-self: center; color: var(--gray-200); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.08em; line-height: 1.2; text-transform: uppercase; }
 .onsuite-center-hub strong { margin-top: 3px; font-size: 1.26rem; }
-.onsuite-device-card { top: 410px; left: 370px; width: 160px; height: 76px; }
+.onsuite-device-card { top: 458px; left: 320px; width: 160px; height: 76px; }
 .architecture-stack { display: grid; justify-items: center; }
 .architecture-layer {
   position: relative;
@@ -426,23 +426,23 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   @keyframes today-device-signal-travel {
     0% { opacity: 0; fill: var(--brand); transform: translate(0, 0); }
     7% { opacity: 1; }
-    38% { fill: var(--brand); transform: translate(72px, -96px); }
-    47% { fill: var(--brand); transform: translate(83px, -111px); }
-    48% { fill: #b86800; transform: translate(85px, -114px); }
-    61% { fill: #b86800; transform: translate(88px, -118px); }
-    62% { fill: var(--brand); transform: translate(91px, -122px); }
-    69% { transform: translate(110px, -148px); }
-    78% { transform: translate(140px, -188px); }
+    38% { fill: var(--brand); transform: translate(93px, -116px); }
+    47% { fill: var(--brand); transform: translate(107px, -134px); }
+    48% { fill: #b86800; transform: translate(110px, -138px); }
+    61% { fill: #b86800; transform: translate(114px, -143px); }
+    62% { fill: var(--brand); transform: translate(118px, -148px); }
+    69% { transform: translate(142px, -179px); }
+    78% { transform: translate(181px, -228px); }
     93% { opacity: 1; }
-    100% { opacity: 0; fill: var(--brand); transform: translate(170px, -228px); }
+    100% { opacity: 0; fill: var(--brand); transform: translate(220px, -276px); }
   }
   @keyframes onsuite-access-signal-travel {
     0% { opacity: 0; transform: translate(0, 0); }
     7% { opacity: 1; }
     51.8% { transform: translate(-245px, 75px); }
-    79.8% { transform: translate(-245px, 173px); }
+    79.8% { transform: translate(-245px, 221px); }
     93% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-45px, 173px); }
+    100% { opacity: 0; transform: translate(-95px, 221px); }
   }
   @keyframes architecture-flow {
     from { background-position-y: 0; }
