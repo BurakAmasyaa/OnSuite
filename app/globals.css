@@ -281,7 +281,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 }
 .onsuite-center-hub span { max-width: 70px; justify-self: center; color: var(--gray-200); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.08em; line-height: 1.2; text-transform: uppercase; }
 .onsuite-center-hub strong { margin-top: 3px; font-size: 1.26rem; }
-.onsuite-device-card { top: 450px; left: 70px; width: 160px; height: 76px; }
+.onsuite-device-card { top: 410px; left: 40px; width: 160px; height: 76px; }
 .architecture-stack { display: grid; justify-items: center; }
 .architecture-layer {
   position: relative;
@@ -425,9 +425,9 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     0% { opacity: 0; transform: translate(0, 0); }
     7% { opacity: 1; }
     51.8% { transform: translate(-245px, 75px); }
-    79.8% { transform: translate(-245px, 213px); }
+    79.8% { transform: translate(-245px, 173px); }
     93% { opacity: 1; }
-    100% { opacity: 0; transform: translate(-345px, 213px); }
+    100% { opacity: 0; transform: translate(-375px, 173px); }
   }
   @keyframes architecture-flow {
     from { background-position-y: 0; }
