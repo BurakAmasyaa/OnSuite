@@ -280,15 +280,24 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .onsuite-center-hub span { max-width: 70px; justify-self: center; color: var(--gray-200); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.08em; line-height: 1.2; text-transform: uppercase; }
 .onsuite-center-hub strong { margin-top: 3px; font-size: 1.26rem; }
 .onsuite-device-card { top: 458px; left: 100px; width: 160px; height: 76px; }
-.architecture-stack { display: grid; justify-items: center; }
+.architecture-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr) 42px minmax(0, 1fr) 42px minmax(0, 1fr);
+  align-items: stretch;
+}
+.architecture-tier-slot { display: contents; }
 .architecture-layer {
   position: relative;
   width: 100%;
+  height: 440px;
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--architecture-line);
   border-radius: 26px;
   background: var(--architecture-bg);
-  padding: 28px;
+  padding: 22px 18px;
   box-shadow: 0 20px 55px rgba(23, 24, 28, 0.08);
 }
 .architecture-layer::after {
@@ -318,15 +327,69 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-layer-core { --architecture-bg: var(--brand); --architecture-line: rgba(255, 255, 255, 0.25); --architecture-accent: var(--white); --architecture-badge: rgba(255, 255, 255, 0.12); --architecture-glow: rgba(255, 255, 255, 0.08); color: var(--white); }
 .architecture-layer-modules { --architecture-bg: var(--gray-100); --architecture-line: var(--gray-300); --architecture-accent: var(--brand); --architecture-badge: var(--white); --architecture-glow: rgba(var(--brand-rgb), 0.05); }
 .architecture-layer-output { --architecture-bg: var(--white); --architecture-line: var(--gray-300); --architecture-accent: var(--gray-800); --architecture-badge: var(--gray-100); --architecture-glow: rgba(23, 24, 28, 0.04); }
-.architecture-layer-copy { position: relative; z-index: 1; display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: flex-start; }
+.architecture-layer-summary {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  flex: 1;
+  appearance: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  cursor: default;
+  font: inherit;
+  text-align: center;
+  transition: flex-grow 220ms ease, padding 220ms ease;
+}
+.architecture-layer-summary:focus-visible { outline: 2px solid var(--architecture-accent); outline-offset: 5px; border-radius: 14px; }
+.architecture-layer-summary h2 { margin: 0; font-size: clamp(1.05rem, 1.8vw, 1.42rem); letter-spacing: -0.035em; line-height: 1.15; }
 .architecture-number { display: grid; width: 46px; height: 46px; place-items: center; border: 1px solid var(--architecture-line); border-radius: 14px; color: var(--architecture-accent); font: 800 0.76rem ui-monospace, SFMono-Regular, Menlo, monospace; }
-.architecture-tier-icon, .architecture-tier-icon .product-icon-tile { display: grid; width: 46px; height: 46px; place-items: center; border-radius: 14px; }
-.architecture-tier-icon .product-icon-tile img { width: 25px; height: 25px; }
-.architecture-layer-copy p { margin: 1px 0 6px; color: var(--architecture-accent); font-size: 0.68rem; font-weight: 800; letter-spacing: 0.11em; text-transform: uppercase; }
-.architecture-layer-copy h2 { margin: 0; font-size: clamp(1.35rem, 3vw, 2rem); letter-spacing: -0.035em; }
-.architecture-layer-copy div > span { display: block; max-width: 720px; margin-top: 8px; color: var(--muted); line-height: 1.6; }
-.architecture-layer-core .architecture-layer-copy div > span { color: var(--gray-200); }
-.architecture-badge-group { position: relative; z-index: 1; margin: 22px 0 0 64px; }
+.architecture-tier-icon, .architecture-tier-icon .product-icon-tile { display: grid; width: 52px; height: 52px; place-items: center; border-radius: 15px; }
+.architecture-tier-icon .product-icon-tile img { width: 28px; height: 28px; }
+.architecture-expand-hint { color: var(--muted); font-size: 0.67rem; font-weight: 750; letter-spacing: 0.035em; line-height: 1.35; }
+.architecture-layer-core .architecture-expand-hint { color: var(--gray-300); }
+.architecture-expand-hint-mobile { display: none; }
+.architecture-layer-details {
+  position: relative;
+  z-index: 1;
+  max-height: 0;
+  flex: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: max-height 240ms ease, opacity 180ms ease, transform 220ms ease, visibility 0s linear 240ms;
+}
+.architecture-layer.is-expanded .architecture-layer-summary {
+  flex: 0 0 auto;
+  align-items: flex-start;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--architecture-line);
+  text-align: left;
+}
+.architecture-layer.is-expanded .architecture-layer-details {
+  max-height: 310px;
+  flex: 1 1 auto;
+  margin-top: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition-delay: 0s;
+  scrollbar-color: var(--architecture-line) transparent;
+  scrollbar-width: thin;
+}
+.architecture-layer-eyebrow { margin: 0 0 7px; color: var(--architecture-accent); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+.architecture-layer-description { margin: 0; color: var(--muted); font-size: 0.78rem; line-height: 1.55; }
+.architecture-layer-core .architecture-layer-description { color: var(--gray-200); }
+.architecture-badge-group { position: relative; z-index: 1; margin: 18px 0 0; }
 .architecture-badge-label {
   margin: 0 0 9px;
   color: var(--architecture-accent);
@@ -335,43 +398,43 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-.architecture-badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.architecture-badges { display: flex; flex-wrap: wrap; gap: 6px; }
 .architecture-badges > span {
   display: inline-flex;
-  min-height: 34px;
+  min-height: 30px;
   align-items: center;
   gap: 6px;
   border: 1px solid var(--architecture-line);
   border-radius: 999px;
   background: var(--architecture-badge);
-  padding: 7px 13px;
+  padding: 6px 10px;
   color: var(--architecture-accent);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 750;
 }
 .architecture-badges > span .product-icon-tile { width: 20px; height: 20px; border-radius: 6px; }
 .architecture-badges > span .product-icon-tile svg, .architecture-badges > span .product-icon-tile img { width: 13px; height: 13px; }
 .architecture-layer-field .architecture-badges > span { border-color: var(--gray-300); color: var(--brand); }
 .architecture-layer-output .architecture-badges > span { border-color: var(--gray-300); color: var(--gray-800); }
-.architecture-arrow { position: relative; width: 54px; height: 72px; }
+.architecture-arrow { position: relative; width: 42px; min-width: 42px; height: 440px; }
 .architecture-arrow::before {
   position: absolute;
-  top: 4px;
-  bottom: 12px;
-  left: 50%;
-  width: 2px;
-  background: repeating-linear-gradient(to bottom, var(--brand) 0 6px, transparent 6px 12px);
+  top: 50%;
+  right: 12px;
+  left: 4px;
+  height: 2px;
+  background: repeating-linear-gradient(to right, var(--brand) 0 6px, transparent 6px 12px);
   content: "";
-  transform: translateX(-50%);
+  transform: translateY(-50%);
 }
 .architecture-arrow span {
   position: absolute;
-  bottom: 2px;
-  left: 50%;
+  top: 50%;
+  right: 1px;
   color: var(--accent);
   font-size: 1.15rem;
   line-height: 1;
-  transform: translateX(-50%);
+  transform: translateY(-53%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .architecture-stack:not(.is-entered) .architecture-layer {
@@ -380,10 +443,8 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   }
   .architecture-stack.is-entered .architecture-layer {
     animation: architecture-tier-enter 160ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: var(--tier-delay);
   }
-  .architecture-stack.is-entered .architecture-layer:nth-of-type(2) { animation-delay: 100ms; }
-  .architecture-stack.is-entered .architecture-layer:nth-of-type(3) { animation-delay: 200ms; }
-  .architecture-stack.is-entered .architecture-layer:nth-of-type(4) { animation-delay: 300ms; }
   .today-system-node {
     animation: today-system-node-enter 180ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: var(--node-delay);
@@ -457,8 +518,8 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     100% { opacity: 0; transform: translate(-315px, 221px); }
   }
   @keyframes architecture-flow {
-    from { background-position-y: 0; }
-    to { background-position-y: 24px; }
+    from { background-position: 0 0; }
+    to { background-position: 24px 24px; }
   }
   @keyframes architecture-tier-enter {
     from { opacity: 0; transform: translateY(10px); }
@@ -591,6 +652,55 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .product-icon-tile-engage { --product-icon-bg: #ffe9e1; --product-icon-ink: #a75336; }
 .product-icon-tile-training { --product-icon-bg: #f4eadf; --product-icon-ink: #7d5b3e; }
 
+@media (max-width: 820px) {
+  .architecture-stack { grid-template-columns: minmax(0, 1fr); }
+  .architecture-layer { height: auto; min-height: 132px; padding: 22px 20px; border-radius: 20px; }
+  .architecture-layer-summary {
+    min-height: 86px;
+    display: grid;
+    flex: 0 0 auto;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    justify-content: initial;
+    column-gap: 16px;
+    row-gap: 5px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .architecture-layer-summary .architecture-tier-icon,
+  .architecture-layer-summary .architecture-number { grid-row: 1 / span 2; align-self: center; }
+  .architecture-layer-summary h2 { align-self: end; font-size: clamp(1.2rem, 4vw, 1.55rem); }
+  .architecture-expand-hint { align-self: start; }
+  .architecture-expand-hint-desktop { display: none; }
+  .architecture-expand-hint-mobile { display: inline; }
+  .architecture-layer.is-expanded .architecture-layer-summary { padding-bottom: 17px; text-align: left; }
+  .architecture-layer.is-expanded .architecture-layer-details {
+    max-height: 900px;
+    flex: 0 1 auto;
+    overflow: visible;
+  }
+  .architecture-layer-description { max-width: 640px; font-size: 0.84rem; }
+  .architecture-badges > span { font-size: 0.76rem; }
+  .architecture-arrow { width: 54px; min-width: 54px; height: 72px; justify-self: center; }
+  .architecture-arrow::before {
+    top: 4px;
+    right: auto;
+    bottom: 12px;
+    left: 50%;
+    width: 2px;
+    height: auto;
+    background: repeating-linear-gradient(to bottom, var(--brand) 0 6px, transparent 6px 12px);
+    transform: translateX(-50%);
+  }
+  .architecture-arrow span {
+    top: auto;
+    right: auto;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%) rotate(90deg);
+  }
+}
+
 @media (max-width: 780px) {
   .nav-shell { align-items: flex-start; flex-direction: column; padding: 18px 0; gap: 12px; }
   .nav-links { width: 100%; overflow-x: auto; padding-bottom: 2px; }
@@ -604,7 +714,6 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .shared-module-table { margin: 8px 22px 24px; }
   .package-fixed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(148px, auto)); gap: 14px; padding: 8px 22px 24px; }
   .package-group-card { grid-column: var(--package-tablet-column); grid-row: var(--package-tablet-row); }
-  .architecture-layer { padding: 22px 20px; border-radius: 20px; }
   .architecture-badge-group { margin-left: 0; }
   .architecture-state-tabs { margin-bottom: 48px; border-radius: 22px; }
   .architecture-state-heading { padding: 24px 22px 14px; }
