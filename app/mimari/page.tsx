@@ -63,6 +63,7 @@ const architectureTiers: ArchitectureTier[] = [
     description: "Toplanan veriyi izleme, analiz, optimizasyon, kalite, bakım ve izlenebilirlik süreçlerine dönüştürür.",
     badges: productModules,
     tone: "modules",
+    tierIcon: "live",
   },
   {
     number: "04",

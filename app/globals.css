@@ -335,17 +335,18 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   flex: 1;
   appearance: none;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   flex-direction: column;
   gap: 14px;
   border: 0;
   background: transparent;
   padding: 0;
+  padding-top: 172px;
   color: inherit;
   cursor: default;
   font: inherit;
   text-align: center;
-  transition: flex-grow 220ms ease, padding 220ms ease;
+  transition: flex-grow 280ms ease-out, padding 280ms ease-out;
 }
 .architecture-layer-summary:focus-visible { outline: 2px solid var(--architecture-accent); outline-offset: 5px; border-radius: 14px; }
 .architecture-layer-summary h2 { margin: 0; font-size: clamp(1.05rem, 1.8vw, 1.42rem); letter-spacing: -0.035em; line-height: 1.15; }
@@ -364,11 +365,12 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   opacity: 0;
   visibility: hidden;
   transform: translateY(8px);
-  transition: max-height 240ms ease, opacity 180ms ease, transform 220ms ease, visibility 0s linear 240ms;
+  transition: max-height 280ms ease-out, opacity 260ms ease-out, transform 280ms ease-out, visibility 0s linear 280ms;
 }
 .architecture-layer.is-expanded .architecture-layer-summary {
   flex: 0 0 auto;
   align-items: flex-start;
+  padding-top: 0;
   padding-bottom: 15px;
   border-bottom: 1px solid var(--architecture-line);
   text-align: left;
@@ -664,6 +666,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     justify-content: initial;
     column-gap: 16px;
     row-gap: 5px;
+    padding-top: 0;
     cursor: pointer;
     text-align: left;
   }
