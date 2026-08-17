@@ -96,6 +96,7 @@ function FlowArrow() {
 
 export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) {
   const stackRef = useRef<HTMLElement>(null);
+  const hasInteractedRef = useRef(false);
   const [hasEntered, setHasEntered] = useState(false);
   const [expandedTier, setExpandedTier] = useState<number | null>(null);
 
@@ -122,10 +123,34 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!hasEntered || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    const hintStart = window.setTimeout(() => {
+      if (!hasInteractedRef.current) {
+        setExpandedTier(0);
+      }
+    }, 1460);
+
+    const hintEnd = window.setTimeout(() => {
+      if (!hasInteractedRef.current) {
+        setExpandedTier((current) => (current === 0 ? null : current));
+      }
+    }, 2660);
+
+    return () => {
+      window.clearTimeout(hintStart);
+      window.clearTimeout(hintEnd);
+    };
+  }, [hasEntered]);
+
   const isCompactLayout = () => window.matchMedia("(max-width: 820px)").matches;
 
   const handlePointerEnter = (event: PointerEvent<HTMLElement>, index: number) => {
     if (event.pointerType === "mouse" && !isCompactLayout()) {
+      hasInteractedRef.current = true;
       setExpandedTier(index);
     }
   };
@@ -142,12 +167,14 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>, index: number) => {
     if (isCompactLayout() || event.detail === 0) {
+      hasInteractedRef.current = true;
       setExpandedTier((current) => (current === index ? null : index));
     }
   };
 
   const handleFocus = (index: number) => {
     if (!isCompactLayout()) {
+      hasInteractedRef.current = true;
       setExpandedTier(index);
     }
   };

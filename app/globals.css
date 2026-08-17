@@ -421,7 +421,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-arrow { position: relative; width: 42px; min-width: 42px; height: 440px; }
 .architecture-arrow::before {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 1px);
   right: 12px;
   left: 4px;
   height: 2px;
@@ -431,12 +431,12 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 }
 .architecture-arrow span {
   position: absolute;
-  top: 50%;
+  top: calc(50% + 1px);
   right: 1px;
   color: var(--accent);
   font-size: 1.15rem;
   line-height: 1;
-  transform: translateY(-53%);
+  transform: translateY(-50%);
 }
 @media (prefers-reduced-motion: no-preference) {
   .architecture-stack:not(.is-entered) .architecture-layer {
