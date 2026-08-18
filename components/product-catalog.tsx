@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { ProductIcon, productIconByCode, type ProductIconKey } from "@/components/product-icon";
-import publicProducts from "@/data/public-products.json";
+import { OfficialProductRoadmap } from "@/components/official-product-roadmap";
 
 type ProductSummary = {
   code: string;
@@ -33,16 +33,6 @@ type PackageGroup = {
     icon: ProductIconKey;
   }>;
   position: GridPosition;
-};
-
-type OfficialProductPosition = {
-  icon: ProductIconKey;
-  desktopColumn: number;
-  desktopRow: number;
-  tabletColumn: number;
-  tabletRow: number;
-  mobileColumn: number;
-  mobileRow: number;
 };
 
 const productGridPositions: Record<string, GridPosition> = {
@@ -119,29 +109,6 @@ const packageGroups: PackageGroup[] = [
     position: { desktopColumn: 3, desktopRow: 3, tabletColumn: 1, tabletRow: 5, mobileRow: 9 },
   },
 ];
-
-const officialProductPositions: Record<string, OfficialProductPosition> = {
-  Connect: { icon: "connect", desktopColumn: 1, desktopRow: 1, tabletColumn: 1, tabletRow: 1, mobileColumn: 1, mobileRow: 1 },
-  Live: { icon: "live", desktopColumn: 2, desktopRow: 1, tabletColumn: 2, tabletRow: 1, mobileColumn: 2, mobileRow: 1 },
-  Optima: { icon: "optima", desktopColumn: 3, desktopRow: 1, tabletColumn: 3, tabletRow: 1, mobileColumn: 1, mobileRow: 2 },
-  Trace: { icon: "trace", desktopColumn: 4, desktopRow: 1, tabletColumn: 1, tabletRow: 2, mobileColumn: 2, mobileRow: 2 },
-  Forms: { icon: "forms", desktopColumn: 1, desktopRow: 2, tabletColumn: 2, tabletRow: 2, mobileColumn: 1, mobileRow: 3 },
-  CNC: { icon: "cnc", desktopColumn: 2, desktopRow: 2, tabletColumn: 3, tabletRow: 2, mobileColumn: 2, mobileRow: 3 },
-  TMC: { icon: "tmc", desktopColumn: 3, desktopRow: 2, tabletColumn: 1, tabletRow: 3, mobileColumn: 1, mobileRow: 4 },
-  Integra: { icon: "integra", desktopColumn: 4, desktopRow: 2, tabletColumn: 2, tabletRow: 3, mobileColumn: 2, mobileRow: 4 },
-  Energy: { icon: "energy", desktopColumn: 1, desktopRow: 3, tabletColumn: 3, tabletRow: 3, mobileColumn: 1, mobileRow: 5 },
-  Green: { icon: "green", desktopColumn: 2, desktopRow: 3, tabletColumn: 1, tabletRow: 4, mobileColumn: 2, mobileRow: 5 },
-  Core: { icon: "core", desktopColumn: 3, desktopRow: 3, tabletColumn: 2, tabletRow: 4, mobileColumn: 1, mobileRow: 6 },
-  Engage: { icon: "engage", desktopColumn: 4, desktopRow: 3, tabletColumn: 3, tabletRow: 4, mobileColumn: 2, mobileRow: 6 },
-};
-
-const sharedOfficialPath = ["Connect", "Live", "Optima", "Energy", "Trace", "Integra", "Engage"] as const;
-
-const officialStartingRoutes = [
-  ["Connect", "Live", "Optima"],
-  ["Energy", "Green"],
-  ["Trace", "Forms", "Integra"],
-] as const;
 
 function ProductsGrid({ products }: { products: ProductSummary[] }) {
   return (
@@ -241,81 +208,6 @@ function PackageGroupsGrid() {
   );
 }
 
-function OfficialPathProduct({ name }: { name: string }) {
-  const product = officialProductPositions[name];
-
-  return (
-    <span className="official-path-product">
-      <ProductIcon icon={product.icon} />
-      <strong>{name}</strong>
-    </span>
-  );
-}
-
-function OfficialProductRoadmap() {
-  return (
-    <div className="official-product-roadmap">
-      <div className="official-roadmap-block">
-        <p className="official-roadmap-label">RESMİ 12 ÜRÜN</p>
-        <div className="official-product-grid" aria-label="Resmi OnSuite ürünleri">
-          {publicProducts.products.map((product) => {
-            const position = officialProductPositions[product.name];
-
-            return (
-              <article
-                className="official-product-card"
-                key={product.name}
-                style={{
-                  "--official-column": position.desktopColumn,
-                  "--official-row": position.desktopRow,
-                  "--official-tablet-column": position.tabletColumn,
-                  "--official-tablet-row": position.tabletRow,
-                  "--official-mobile-column": position.mobileColumn,
-                  "--official-mobile-row": position.mobileRow,
-                } as CSSProperties}
-              >
-                <ProductIcon icon={position.icon} />
-                <strong>{product.name}</strong>
-              </article>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="official-roadmap-block">
-        <h3>Ortak ürün yolu</h3>
-        <div className="official-path-sequence" aria-label={sharedOfficialPath.join(", ardından ")}>
-          {sharedOfficialPath.map((name, index) => (
-            <div className="official-path-step" key={name}>
-              <OfficialPathProduct name={name} />
-              {index < sharedOfficialPath.length - 1 ? <span className="official-path-arrow" aria-hidden="true">→</span> : null}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="official-roadmap-block">
-        <h3>Başlangıç rotaları</h3>
-        <div className="official-starting-routes">
-          {officialStartingRoutes.map((route, routeIndex) => (
-            <article className="official-route-card" key={route.join("-")}>
-              <span className="official-route-number">0{routeIndex + 1}</span>
-              <div className="official-route-sequence" aria-label={route.join(", ardından ")}>
-                {route.map((name, index) => (
-                  <div className="official-route-step" key={name}>
-                    <OfficialPathProduct name={name} />
-                    {index < route.length - 1 ? <span className="official-route-arrow" aria-hidden="true">→</span> : null}
-                  </div>
-                ))}
-              </div>
-            </article>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export function ProductCatalog({
   products,
   sharedModules,
@@ -348,7 +240,7 @@ export function ProductCatalog({
 
       <section className="catalog-section" aria-labelledby="official-path-section-title">
         <header className="catalog-section-heading">
-          <h2 id="official-path-section-title">Resmi Ürün Yolu</h2>
+          <h2 id="official-path-section-title">OnSuite Ürün Ekosistemi</h2>
         </header>
         <OfficialProductRoadmap />
       </section>

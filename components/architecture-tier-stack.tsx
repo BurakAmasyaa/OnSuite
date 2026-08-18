@@ -227,9 +227,6 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
 
   return (
     <div className="architecture-flow-shell">
-      <div className="architecture-continuous-rail" aria-hidden="true">
-        <i />
-      </div>
       <section
         ref={stackRef}
         className={`architecture-stack${hasEntered ? " is-entered" : ""}${expandedTier !== null ? " has-expanded" : ""}`}

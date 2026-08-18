@@ -2,72 +2,84 @@
   "products": [
     {
       "name": "Connect",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Live",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Optima",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Trace",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Forms",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "CNC",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "TMC",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Integra",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Energy",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Green",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Core",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
     },
     {
       "name": "Engage",
+      "isOfficialPublic": true,
       "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
       "sourcePath": "/tr/moduller",
       "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
