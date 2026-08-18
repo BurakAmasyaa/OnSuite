@@ -280,12 +280,24 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .onsuite-center-hub span { max-width: 70px; justify-self: center; color: var(--gray-200); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.08em; line-height: 1.2; text-transform: uppercase; }
 .onsuite-center-hub strong { margin-top: 3px; font-size: 1.26rem; }
 .onsuite-device-card { top: 458px; left: 100px; width: 160px; height: 76px; }
+.architecture-flow-shell { width: 100%; min-width: 0; }
 .architecture-stack {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 42px minmax(0, 1fr) 42px minmax(0, 1fr) 42px minmax(0, 1fr);
+  display: flex;
+  width: 100%;
+  min-width: 0;
   align-items: stretch;
+  gap: 42px;
+  overflow: hidden;
 }
-.architecture-tier-slot { display: contents; }
+.architecture-tier-slot {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  flex: 1 1 0;
+  transition: flex-grow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.architecture-stack.has-expanded .architecture-tier-slot { flex-grow: 0.74; }
+.architecture-stack.has-expanded .architecture-tier-slot.is-active-slot { flex-grow: 1.78; }
 .architecture-layer {
   position: relative;
   width: 100%;
@@ -391,6 +403,28 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-layer-eyebrow { margin: 0 0 7px; color: var(--architecture-accent); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
 .architecture-layer-description { margin: 0; color: var(--muted); font-size: 0.78rem; line-height: 1.55; }
 .architecture-layer-core .architecture-layer-description { color: var(--gray-200); }
+.architecture-process-flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.architecture-process-flow li {
+  display: inline-flex;
+  align-items: center;
+  color: var(--white);
+  font-size: 0.67rem;
+  font-weight: 750;
+  letter-spacing: 0.02em;
+}
+.architecture-process-flow li:not(:last-child)::after {
+  margin-left: 5px;
+  color: var(--gray-300);
+  content: "→";
+}
 .architecture-badge-group { position: relative; z-index: 1; margin: 18px 0 0; }
 .architecture-badge-label {
   margin: 0 0 9px;
@@ -418,7 +452,24 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .architecture-badges > span .product-icon-tile svg, .architecture-badges > span .product-icon-tile img { width: 13px; height: 13px; }
 .architecture-layer-field .architecture-badges > span { border-color: var(--gray-300); color: var(--brand); }
 .architecture-layer-output .architecture-badges > span { border-color: var(--gray-300); color: var(--gray-800); }
-.architecture-arrow { position: relative; width: 42px; min-width: 42px; height: 440px; }
+.architecture-flow-cue {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin: 16px 0 0;
+  color: var(--gray-700);
+  font-size: 0.7rem;
+  font-weight: 750;
+}
+.architecture-flow-cue span { color: var(--brand); font-size: 1rem; }
+.architecture-arrow {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 42px;
+  height: 440px;
+  pointer-events: none;
+}
 .architecture-arrow::before {
   position: absolute;
   top: calc(50% + 1px);
@@ -438,6 +489,20 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   line-height: 1;
   transform: translateY(-50%);
 }
+.architecture-flow-pulse {
+  position: absolute;
+  top: calc(50% - 2px);
+  left: 5px;
+  z-index: 2;
+  display: none;
+  width: 6px;
+  height: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 999px;
+  background: var(--brand);
+  box-shadow: 0 0 0 2px rgba(var(--brand-rgb), 0.1);
+}
+.architecture-step-indicator { display: none; }
 @media (prefers-reduced-motion: no-preference) {
   .architecture-stack:not(.is-entered) .architecture-layer {
     opacity: 0;
@@ -477,7 +542,12 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     display: block;
     animation: onsuite-access-signal-travel 2.2s linear infinite;
   }
-  .architecture-arrow::before { animation: architecture-flow 2s linear infinite; }
+  .architecture-arrow::before { animation: architecture-flow 2.4s linear infinite; }
+  .architecture-flow-pulse {
+    display: block;
+    animation: architecture-pulse-travel 2.4s linear infinite;
+    animation-delay: var(--flow-pulse-delay);
+  }
   @keyframes onsuite-signal-travel {
     0% { opacity: 0; transform: translate(0, 0); }
     12% { opacity: 1; }
@@ -522,6 +592,12 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   @keyframes architecture-flow {
     from { background-position: 0 0; }
     to { background-position: 24px 24px; }
+  }
+  @keyframes architecture-pulse-travel {
+    0% { opacity: 0; transform: translateX(0); }
+    14% { opacity: 0.9; }
+    86% { opacity: 0.9; }
+    100% { opacity: 0; transform: translateX(25px); }
   }
   @keyframes architecture-tier-enter {
     from { opacity: 0; transform: translateY(10px); }
@@ -654,11 +730,23 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .product-icon-tile-engage { --product-icon-bg: #ffe9e1; --product-icon-ink: #a75336; }
 .product-icon-tile-training { --product-icon-bg: #f4eadf; --product-icon-ink: #7d5b3e; }
 
-@media (max-width: 820px) {
-  .architecture-stack { grid-template-columns: minmax(0, 1fr); }
-  .architecture-layer { height: auto; min-height: 132px; padding: 22px 20px; border-radius: 20px; }
+@media (max-width: 900px) {
+  .architecture-stack {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    overflow: visible;
+  }
+  .architecture-tier-slot,
+  .architecture-stack.has-expanded .architecture-tier-slot,
+  .architecture-stack.has-expanded .architecture-tier-slot.is-active-slot {
+    min-width: 0;
+    flex: none;
+    transition: none;
+  }
+  .architecture-layer { height: auto; min-height: 220px; padding: 22px 20px; border-radius: 20px; }
   .architecture-layer-summary {
-    min-height: 86px;
+    min-height: 174px;
     display: grid;
     flex: 0 0 auto;
     grid-template-columns: auto minmax(0, 1fr);
@@ -676,7 +764,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .architecture-expand-hint { align-self: start; }
   .architecture-expand-hint-desktop { display: none; }
   .architecture-expand-hint-mobile { display: inline; }
-  .architecture-layer.is-expanded .architecture-layer-summary { padding-bottom: 17px; text-align: left; }
+  .architecture-layer.is-expanded .architecture-layer-summary { min-height: 86px; padding-bottom: 17px; text-align: left; }
   .architecture-layer.is-expanded .architecture-layer-details {
     max-height: 900px;
     flex: 0 1 auto;
@@ -684,23 +772,45 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   }
   .architecture-layer-description { max-width: 640px; font-size: 0.84rem; }
   .architecture-badges > span { font-size: 0.76rem; }
-  .architecture-arrow { width: 54px; min-width: 54px; height: 72px; justify-self: center; }
-  .architecture-arrow::before {
-    top: 4px;
-    right: auto;
-    bottom: 12px;
-    left: 50%;
-    width: 2px;
-    height: auto;
-    background: repeating-linear-gradient(to bottom, var(--brand) 0 6px, transparent 6px 12px);
-    transform: translateX(-50%);
+  .architecture-arrow { display: none; }
+}
+
+@media (max-width: 600px) {
+  .architecture-flow-shell {
+    width: calc(100vw - 16px);
+    margin-right: calc(50% - 50vw);
   }
-  .architecture-arrow span {
-    top: auto;
-    right: auto;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%) rotate(90deg);
+  .architecture-stack {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 2px 16px 14px 0;
+    scroll-behavior: smooth;
+    scroll-padding-inline: 0 16px;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    overscroll-behavior-inline: contain;
+  }
+  .architecture-stack::-webkit-scrollbar { display: none; }
+  .architecture-tier-slot,
+  .architecture-stack.has-expanded .architecture-tier-slot,
+  .architecture-stack.has-expanded .architecture-tier-slot.is-active-slot {
+    flex: 0 0 85vw;
+    max-width: 360px;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  .architecture-layer { min-height: 260px; }
+  .architecture-layer-summary { min-height: 214px; }
+  .architecture-layer.is-expanded .architecture-layer-summary { min-height: 86px; }
+  .architecture-step-indicator {
+    display: block;
+    margin: 6px 16px 0 0;
+    color: var(--brand);
+    font: 800 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace;
+    letter-spacing: 0.12em;
+    text-align: right;
   }
 }
 

@@ -8,6 +8,7 @@ import {
   type FocusEvent,
   type MouseEvent,
   type PointerEvent,
+  type UIEvent,
 } from "react";
 import { ProductIcon, type ProductIconKey } from "@/components/product-icon";
 
@@ -25,6 +26,8 @@ export type ArchitectureTier = {
   badgeLabel?: string;
   tone: "field" | "core" | "modules" | "output";
   tierIcon?: ProductIconKey;
+  processSteps?: string[];
+  flowCue?: string;
 };
 
 function ArchitectureLayerPattern({ tone }: Pick<ArchitectureTier, "tone">) {
@@ -86,10 +89,13 @@ function ArchitectureLayerPattern({ tone }: Pick<ArchitectureTier, "tone">) {
   );
 }
 
-function FlowArrow() {
+function FlowArrow({ index }: { index: number }) {
+  const pulseStyle = { "--flow-pulse-delay": `${index * 280}ms` } as CSSProperties;
+
   return (
     <div className="architecture-arrow" aria-hidden="true">
       <span>→</span>
+      <i className="architecture-flow-pulse" style={pulseStyle} />
     </div>
   );
 }
@@ -97,8 +103,10 @@ function FlowArrow() {
 export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) {
   const stackRef = useRef<HTMLElement>(null);
   const hasInteractedRef = useRef(false);
+  const tierSlotsRef = useRef<Array<HTMLDivElement | null>>([]);
   const [hasEntered, setHasEntered] = useState(false);
   const [expandedTier, setExpandedTier] = useState<number | null>(null);
+  const [visibleTier, setVisibleTier] = useState(0);
 
   useEffect(() => {
     const stack = stackRef.current;
@@ -124,7 +132,11 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
   }, []);
 
   useEffect(() => {
-    if (!hasEntered || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      !hasEntered ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      window.matchMedia("(max-width: 900px)").matches
+    ) {
       return;
     }
 
@@ -146,7 +158,7 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
     };
   }, [hasEntered]);
 
-  const isCompactLayout = () => window.matchMedia("(max-width: 820px)").matches;
+  const isCompactLayout = () => window.matchMedia("(max-width: 900px)").matches;
 
   const handlePointerEnter = (event: PointerEvent<HTMLElement>, index: number) => {
     if (event.pointerType === "mouse" && !isCompactLayout()) {
@@ -168,6 +180,7 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
   const handleClick = (event: MouseEvent<HTMLButtonElement>, index: number) => {
     if (isCompactLayout() || event.detail === 0) {
       hasInteractedRef.current = true;
+      setVisibleTier(index);
       setExpandedTier((current) => (current === index ? null : index));
     }
   };
@@ -185,73 +198,118 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
     }
   };
 
+  const handleMobileScroll = (event: UIEvent<HTMLElement>) => {
+    if (!window.matchMedia("(max-width: 600px)").matches) {
+      return;
+    }
+
+    const container = event.currentTarget;
+    const viewportCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
+
+    tierSlotsRef.current.forEach((slot, index) => {
+      if (!slot) {
+        return;
+      }
+
+      const slotCenter = slot.offsetLeft + slot.offsetWidth / 2;
+      const distance = Math.abs(slotCenter - viewportCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
+      }
+    });
+
+    setVisibleTier((current) => (current === closestIndex ? current : closestIndex));
+  };
+
   return (
-    <section
-      ref={stackRef}
-      className={`architecture-stack${hasEntered ? " is-entered" : ""}`}
-      aria-label="OnSuite üretim mimarisi katmanları"
-    >
-      {tiers.map((tier, index) => {
-        const isExpanded = expandedTier === index;
-        const detailId = `architecture-tier-detail-${index}`;
-        const entranceStyle = { "--tier-delay": `${index * 100}ms` } as CSSProperties;
+    <div className="architecture-flow-shell">
+      <section
+        ref={stackRef}
+        className={`architecture-stack${hasEntered ? " is-entered" : ""}${expandedTier !== null ? " has-expanded" : ""}`}
+        aria-label="OnSuite üretim mimarisi katmanları"
+        onScroll={handleMobileScroll}
+      >
+        {tiers.map((tier, index) => {
+          const isExpanded = expandedTier === index;
+          const detailId = `architecture-tier-detail-${index}`;
+          const entranceStyle = { "--tier-delay": `${index * 100}ms` } as CSSProperties;
 
-        return (
-          <div className="architecture-tier-slot" key={tier.tone}>
-            <article
-              className={`architecture-layer architecture-layer-${tier.tone}${isExpanded ? " is-expanded" : ""}`}
-              style={entranceStyle}
-              onPointerEnter={(event) => handlePointerEnter(event, index)}
-              onPointerLeave={handlePointerLeave}
-              onFocus={() => handleFocus(index)}
-              onBlur={handleBlur}
+          return (
+            <div
+              ref={(element) => {
+                tierSlotsRef.current[index] = element;
+              }}
+              className={`architecture-tier-slot${isExpanded ? " is-active-slot" : ""}`}
+              key={tier.tone}
             >
-              <ArchitectureLayerPattern tone={tier.tone} />
-              <button
-                className="architecture-layer-summary"
-                type="button"
-                aria-expanded={isExpanded}
-                aria-controls={detailId}
-                onClick={(event) => handleClick(event, index)}
+              <article
+                className={`architecture-layer architecture-layer-${tier.tone}${isExpanded ? " is-expanded" : ""}`}
+                style={entranceStyle}
+                onPointerEnter={(event) => handlePointerEnter(event, index)}
+                onPointerLeave={handlePointerLeave}
+                onFocus={() => handleFocus(index)}
+                onBlur={handleBlur}
               >
-                {tier.tierIcon ? (
-                  <span className="architecture-tier-icon">
-                    <ProductIcon icon={tier.tierIcon} />
+                <ArchitectureLayerPattern tone={tier.tone} />
+                <button
+                  className="architecture-layer-summary"
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-controls={detailId}
+                  onClick={(event) => handleClick(event, index)}
+                >
+                  {tier.tierIcon ? (
+                    <span className="architecture-tier-icon">
+                      <ProductIcon icon={tier.tierIcon} />
+                    </span>
+                  ) : (
+                    <span className="architecture-number">{tier.number}</span>
+                  )}
+                  <h2>{tier.title}</h2>
+                  <span className="architecture-expand-hint" aria-hidden="true">
+                    <span className="architecture-expand-hint-desktop">Detaylar için üzerine gelin</span>
+                    <span className="architecture-expand-hint-mobile">Detayları {isExpanded ? "gizle" : "göster"}</span>
                   </span>
-                ) : (
-                  <span className="architecture-number">{tier.number}</span>
-                )}
-                <h2>{tier.title}</h2>
-                <span className="architecture-expand-hint" aria-hidden="true">
-                  <span className="architecture-expand-hint-desktop">Detaylar için üzerine gelin</span>
-                  <span className="architecture-expand-hint-mobile">Detayları {isExpanded ? "gizle" : "göster"}</span>
-                </span>
-              </button>
+                </button>
 
-              <div
-                id={detailId}
-                className="architecture-layer-details"
-                aria-hidden={!isExpanded}
-              >
-                <p className="architecture-layer-eyebrow">{tier.eyebrow}</p>
-                <p className="architecture-layer-description">{tier.description}</p>
-                <div className="architecture-badge-group">
-                  {tier.badgeLabel ? <p className="architecture-badge-label">{tier.badgeLabel}</p> : null}
-                  <div className="architecture-badges" aria-label={`${tier.title} bileşenleri`}>
-                    {tier.badges.map((badge) => (
-                      <span key={badge.label}>
-                        {badge.icon ? <ProductIcon icon={badge.icon} /> : null}
-                        {badge.label}
-                      </span>
-                    ))}
+                <div
+                  id={detailId}
+                  className="architecture-layer-details"
+                  aria-hidden={!isExpanded}
+                >
+                  <p className="architecture-layer-eyebrow">{tier.eyebrow}</p>
+                  <p className="architecture-layer-description">{tier.description}</p>
+                  {tier.processSteps ? (
+                    <ol className="architecture-process-flow" aria-label={`${tier.title} veri işleme adımları`}>
+                      {tier.processSteps.map((step) => <li key={step}>{step}</li>)}
+                    </ol>
+                  ) : null}
+                  <div className="architecture-badge-group">
+                    {tier.badgeLabel ? <p className="architecture-badge-label">{tier.badgeLabel}</p> : null}
+                    <div className="architecture-badges" aria-label={`${tier.title} bileşenleri`}>
+                      {tier.badges.map((badge) => (
+                        <span key={badge.label}>
+                          {badge.icon ? <ProductIcon icon={badge.icon} /> : null}
+                          {badge.label}
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                  {tier.flowCue ? <p className="architecture-flow-cue"><span aria-hidden="true">↔</span>{tier.flowCue}</p> : null}
                 </div>
-              </div>
-            </article>
-            {index < tiers.length - 1 ? <FlowArrow /> : null}
-          </div>
-        );
-      })}
-    </section>
+              </article>
+              {index < tiers.length - 1 ? <FlowArrow index={index} /> : null}
+            </div>
+          );
+        })}
+      </section>
+      <p className="architecture-step-indicator" aria-live="polite">
+        {String(visibleTier + 1).padStart(2, "0")} / {String(tiers.length).padStart(2, "0")}
+      </p>
+    </div>
   );
 }

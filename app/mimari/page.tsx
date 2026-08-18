@@ -4,8 +4,8 @@ import {
   ArchitectureTierStack,
   type ArchitectureTier,
 } from "@/components/architecture-tier-stack";
-import { productIconByCode } from "@/components/product-icon";
-import { products } from "@/lib/data";
+import type { ProductIconKey } from "@/components/product-icon";
+import architectureModules from "@/data/architecture-modules.json";
 
 export const metadata: Metadata = {
   title: "Üretim Mimarisi",
@@ -21,24 +21,22 @@ const fieldTechnologies = [
   "Mitsubishi",
   "MQTT",
   "TCP/IP",
-  "Barcode/RFID",
+  "Barkod / RFID",
 ];
 
-const integrationSystems = ["SAP", "Oracle", "Logo", "Netsis", "WMS"];
+const integrationSystems = ["SAP", "Oracle", "Logo", "Netsis", "ERP", "WMS", "API"];
 
-const productModules = products
-  .filter((product) => product.AppProductCode !== "CORE" && product.AppProductCode !== "CONNECTIVITY")
-  .map((product) => ({
-    label: product.ProductTitleTR ?? product.ProductTitleEN ?? product.AppProductCode,
-    icon: productIconByCode[product.AppProductCode],
-  }));
+const productModules = architectureModules.map((module) => ({
+  label: module.label,
+  icon: module.icon as ProductIconKey,
+}));
 
 const architectureTiers: ArchitectureTier[] = [
   {
     number: "01",
     eyebrow: "Verinin kaynağı",
     title: "Saha katmanı",
-    description: "Makineler, kontrol sistemleri, endüstriyel protokoller ve kimliklendirme teknolojileri.",
+    description: "Makinelerden, kontrol sistemlerinden ve kimliklendirme teknolojilerinden ham üretim verisini alır.",
     badges: fieldTechnologies.map((label) => ({ label })),
     badgeLabel: "Saha protokolleri",
     tone: "field",
@@ -48,13 +46,14 @@ const architectureTiers: ArchitectureTier[] = [
     number: "02",
     eyebrow: "Bağlantı ve ortak servisler",
     title: "Connect + Core",
-    description: "Saha verisini güvenli biçimde toplar, normalize eder ve tüm OnSuite ürünleri için ortak bir omurga oluşturur.",
+    description: "Sahadan veriyi toplar, farklı kaynakları normalize eder, merkezi servislerde yönetir ve OnSuite modüllerine dağıtır.",
     badges: [
       { label: "Connect", icon: "connect" },
       { label: "Core", icon: "core" },
     ],
     tone: "core",
     tierIcon: "core",
+    processSteps: ["Collect", "Standardize", "Manage", "Distribute"],
   },
   {
     number: "03",
@@ -62,6 +61,7 @@ const architectureTiers: ArchitectureTier[] = [
     title: "Ürün modülleri",
     description: "Toplanan veriyi izleme, analiz, optimizasyon, kalite, bakım ve izlenebilirlik süreçlerine dönüştürür.",
     badges: productModules,
+    badgeLabel: "OnSuite modülleri",
     tone: "modules",
     tierIcon: "live",
   },
@@ -74,6 +74,7 @@ const architectureTiers: ArchitectureTier[] = [
     badgeLabel: "Entegrasyon",
     tone: "output",
     tierIcon: "integra",
+    flowCue: "Gerektiğinde çift yönlü veri alışverişi",
   },
 ];
 

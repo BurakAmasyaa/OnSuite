@@ -1,0 +1,12 @@
+[
+  { "productCode": "MONITORA", "label": "Live", "icon": "live", "sourcePath": "/tr/moduller/live" },
+  { "productCode": "OEE", "label": "Optima", "icon": "optima", "sourcePath": "/tr/moduller/optima" },
+  { "productCode": "ENERGY", "label": "Energy", "icon": "energy", "sourcePath": "/tr/moduller/energy" },
+  { "productCode": "İZLENEBILIRLIK", "label": "Trace", "icon": "trace", "sourcePath": "/tr/moduller/trace" },
+  { "productCode": "DSF", "label": "Forms", "icon": "forms", "sourcePath": "/tr/moduller/forms" },
+  { "productCode": "CNC", "label": "CNC", "icon": "cnc", "sourcePath": "/tr/moduller/cnc" },
+  { "productCode": "OPCTMC", "label": "TMC", "icon": "tmc", "sourcePath": "/tr/moduller/tmc" },
+  { "productCode": "ENTEGRASYON", "label": "Integra", "icon": "integra", "sourcePath": "/tr/moduller/integra" },
+  { "productCode": "CARBONIQ", "label": "Green", "icon": "green", "sourcePath": "/tr/moduller/green" },
+  { "productCode": "ENGAGE", "label": "Engage", "icon": "engage", "sourcePath": "/tr/moduller/engage" }
+]
