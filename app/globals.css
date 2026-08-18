@@ -733,6 +733,60 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   font-weight: var(--weight-bold);
   line-height: 1;
 }
+.official-product-roadmap { display: grid; gap: 30px; padding: 8px 32px 32px; }
+.official-roadmap-block { display: grid; min-width: 0; gap: 14px; }
+.official-roadmap-block h3 { margin: 0; color: var(--gray-950); font-size: var(--text-lg); line-height: 1.25; }
+.official-roadmap-label { margin: 0; color: var(--gray-600); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.1em; }
+.official-product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(88px, auto));
+  gap: 12px;
+}
+.official-product-card {
+  grid-column: var(--official-column);
+  grid-row: var(--official-row);
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--gray-300);
+  border-radius: 16px;
+  background: var(--white);
+  padding: 15px;
+  box-shadow: 0 8px 24px rgba(23, 24, 28, 0.07);
+}
+.official-product-card .product-icon-tile { width: 40px; height: 40px; border-radius: 12px; }
+.official-product-card .product-icon-tile img, .official-product-card .product-icon-tile svg { width: 23px; height: 23px; }
+.official-product-card strong { min-width: 0; overflow-wrap: anywhere; color: var(--gray-950); font-size: var(--text-base); }
+.official-path-sequence {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  border: 1px solid var(--gray-200);
+  border-radius: 18px;
+  background: var(--gray-50);
+  padding: 16px;
+}
+.official-path-step, .official-route-step { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.official-path-product { display: inline-flex; min-width: 0; align-items: center; gap: 7px; color: var(--gray-900); }
+.official-path-product strong { font-size: var(--text-sm); line-height: 1.2; white-space: nowrap; }
+.official-path-arrow, .official-route-arrow { flex: 0 0 auto; color: var(--brand); font-size: var(--text-lg); font-weight: var(--weight-bold); line-height: 1; }
+.official-starting-routes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.official-route-card {
+  display: grid;
+  min-width: 0;
+  gap: 14px;
+  border: 1px solid var(--gray-300);
+  border-radius: 16px;
+  background: var(--white);
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(23, 24, 28, 0.06);
+}
+.official-route-number { color: var(--brand); font-size: var(--text-xs); font-weight: var(--weight-heavy); letter-spacing: 0.08em; }
+.official-route-sequence { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 7px; }
 .product-icon-tile {
   --product-icon-bg: var(--gray-100);
   --product-icon-ink: var(--gray-700);
@@ -896,6 +950,14 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .shared-module-table { margin: 8px 22px 24px; }
   .package-fixed-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(5, minmax(148px, auto)); gap: 14px; padding: 8px 22px 24px; }
   .package-group-card { grid-column: var(--package-tablet-column); grid-row: var(--package-tablet-row); }
+  .official-product-roadmap { padding: 8px 22px 24px; }
+  .official-product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(88px, auto)); }
+  .official-product-card { grid-column: var(--official-tablet-column); grid-row: var(--official-tablet-row); }
+  .official-path-sequence { align-items: stretch; flex-direction: column; padding: 18px; }
+  .official-path-step { width: 100%; flex-direction: column; gap: 6px; }
+  .official-path-step .official-path-product { width: min(240px, 100%); justify-content: flex-start; border: 1px solid var(--gray-200); border-radius: 12px; background: var(--white); padding: 7px; }
+  .official-path-arrow { transform: rotate(90deg); }
+  .official-starting-routes { grid-template-columns: 1fr; }
   .architecture-badge-group { margin-left: 0; }
   .architecture-state-tabs { margin-bottom: 48px; border-radius: 22px; }
   .architecture-state-heading { padding: 24px 22px 14px; }
@@ -914,4 +976,10 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .shared-module-row { grid-template-columns: 1fr; align-items: start; gap: 10px; min-height: 0; padding: 16px; }
   .package-fixed-grid { grid-template-columns: 1fr; grid-template-rows: repeat(9, minmax(138px, auto)); padding: 8px 18px 22px; }
   .package-group-card { grid-column: 1; grid-row: var(--package-mobile-row); }
+  .official-product-roadmap { gap: 26px; padding: 8px 18px 22px; }
+  .official-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(6, minmax(82px, auto)); gap: 10px; }
+  .official-product-card { grid-column: var(--official-mobile-column); grid-row: var(--official-mobile-row); padding: 12px 10px; }
+  .official-product-card .product-icon-tile { width: 34px; height: 34px; border-radius: 10px; }
+  .official-product-card .product-icon-tile img, .official-product-card .product-icon-tile svg { width: 20px; height: 20px; }
+  .official-route-card { padding: 14px; }
 }

@@ -1,0 +1,76 @@
+{
+  "products": [
+    {
+      "name": "Connect",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Live",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Optima",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Trace",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Forms",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "CNC",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "TMC",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Integra",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Energy",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Green",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Core",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    },
+    {
+      "name": "Engage",
+      "sourceUrl": "https://www.onsuite.com.tr/tr/moduller",
+      "sourcePath": "/tr/moduller",
+      "lastVerifiedAt": "2026-08-18T21:37:21+03:00"
+    }
+  ]
+}
