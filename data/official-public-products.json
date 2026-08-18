@@ -1,0 +1,18 @@
+{
+  "source": "https://www.onsuite.com.tr/tr/moduller",
+  "lastVerified": "2026-08-18",
+  "products": [
+    { "name": "Connect", "isOfficialPublic": true },
+    { "name": "Live", "isOfficialPublic": true },
+    { "name": "Optima", "isOfficialPublic": true },
+    { "name": "Trace", "isOfficialPublic": true },
+    { "name": "Forms", "isOfficialPublic": true },
+    { "name": "CNC", "isOfficialPublic": true },
+    { "name": "TMC", "isOfficialPublic": true },
+    { "name": "Integra", "isOfficialPublic": true },
+    { "name": "Energy", "isOfficialPublic": true },
+    { "name": "Green", "isOfficialPublic": true },
+    { "name": "Core", "isOfficialPublic": true },
+    { "name": "Engage", "isOfficialPublic": true }
+  ]
+}
