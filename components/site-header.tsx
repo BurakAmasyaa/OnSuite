@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 const links = [
   { href: "/", label: "Ana Sayfa" },
   { href: "/harita", label: "Ürün-Modül Kataloğu" },
-  { href: "/mimari", label: "Mimari" },
 ];
 
 export function SiteHeader() {

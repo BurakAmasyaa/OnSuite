@@ -1,9 +1,10 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useEffect, useState, type CSSProperties, type MouseEvent } from "react";
+import { useState, type CSSProperties } from "react";
+import { ArchitectureTierStack, type ArchitectureTier } from "@/components/architecture-tier-stack";
 
-type ArchitectureTab = "today" | "onsuite";
+type ArchitectureTab = "today" | "onsuite" | "architecture";
 
 const todaySystems = [
   { label: "PLC/SCADA", x: 40, y: 34 },
@@ -163,37 +164,11 @@ function OnSuiteArchitecture() {
   );
 }
 
-export function ArchitectureStateTabs() {
+export function ArchitectureStateTabs({ tiers }: { tiers: ArchitectureTier[] }) {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
-  const [autoCycleEnabled, setAutoCycleEnabled] = useState(true);
-  const [isHoverPaused, setIsHoverPaused] = useState(false);
   const prefersReducedMotion = useReducedMotion();
 
-  useEffect(() => {
-    if (prefersReducedMotion || !autoCycleEnabled || isHoverPaused) {
-      return;
-    }
-
-    const timer = window.setTimeout(() => {
-      setActiveTab((currentTab) => currentTab === "today" ? "onsuite" : "today");
-    }, 4800);
-
-    return () => window.clearTimeout(timer);
-  }, [activeTab, autoCycleEnabled, isHoverPaused, prefersReducedMotion]);
-
-  const handleTabClick = (nextTab: ArchitectureTab) => {
-    setActiveTab(nextTab);
-
-    if (!prefersReducedMotion) {
-      setAutoCycleEnabled((isEnabled) => !isEnabled);
-    }
-  };
-
-  const handleDiagramMouseEnter = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.relatedTarget !== null) {
-      setIsHoverPaused(true);
-    }
-  };
+  const handleTabClick = (nextTab: ArchitectureTab) => setActiveTab(nextTab);
 
   return (
     <section className="architecture-state-tabs" aria-labelledby="architecture-state-title">
@@ -223,13 +198,19 @@ export function ArchitectureStateTabs() {
         >
           OnSuite ile
         </button>
+        <button
+          id="architecture-tab-architecture"
+          type="button"
+          role="tab"
+          aria-controls="architecture-panel-architecture"
+          aria-selected={activeTab === "architecture"}
+          onClick={() => handleTabClick("architecture")}
+        >
+          Mimari
+        </button>
       </div>
 
-      <div
-        className="architecture-tab-stage"
-        onMouseEnter={handleDiagramMouseEnter}
-        onMouseLeave={() => setIsHoverPaused(false)}
-      >
+      <div className={`architecture-tab-stage architecture-tab-stage-${activeTab}`}>
         <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={activeTab}
@@ -241,7 +222,9 @@ export function ArchitectureStateTabs() {
             exit={{ opacity: 0 }}
             transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeInOut" }}
           >
-            {activeTab === "today" ? <TodayArchitecture /> : <OnSuiteArchitecture />}
+            {activeTab === "today" ? <TodayArchitecture /> : null}
+            {activeTab === "onsuite" ? <OnSuiteArchitecture /> : null}
+            {activeTab === "architecture" ? <ArchitectureTierStack tiers={tiers} /> : null}
           </motion.div>
         </AnimatePresence>
       </div>

@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArchitectureStateTabs } from "@/components/architecture-state-tabs";
+import { architectureTiers } from "@/lib/architecture";
 import { modules, products, sharedModules } from "@/lib/data";
 
 const liveModuleCount = modules.filter((module) => module.status === "live").length;
@@ -24,6 +26,18 @@ export default function HomePage() {
         <article className="stat-card"><strong>{modules.length}</strong><span>Toplam modül</span></article>
         <article className="stat-card"><strong>{liveModuleCount}</strong><span>Canlı modül</span></article>
         <article className="stat-card"><strong>{sharedModules.length}</strong><span>Paylaşılan modül</span></article>
+      </section>
+
+      <section id="mimari" className="architecture-home-section" aria-labelledby="home-architecture-title">
+        <header className="page-heading architecture-heading">
+          <p className="eyebrow">OnSuite üretim mimarisi</p>
+          <h2 id="home-architecture-title">Sahadan karara uzanan kesintisiz veri akışı.</h2>
+          <p>
+            Makine ve protokollerden başlayan üretim verisi, Connect + Core üzerinden ürün
+            modüllerine taşınır; kurumsal sistemlere ve operasyonel çıktılara dönüşür.
+          </p>
+        </header>
+        <ArchitectureStateTabs tiers={architectureTiers} />
       </section>
     </div>
   );
