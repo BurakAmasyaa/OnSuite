@@ -501,6 +501,13 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   font-weight: 750;
 }
 .architecture-flow-cue span { color: var(--brand); font-size: 1rem; }
+@media (min-width: 901px) {
+  .architecture-stack { gap: 56px; }
+  .architecture-layer { padding: 26px 22px; }
+  .architecture-layer-summary { gap: 18px; }
+  .architecture-layer-description { line-height: 1.65; }
+  .architecture-layer.is-expanded .architecture-layer-details { margin-top: 20px; }
+}
 .architecture-arrow {
   position: absolute;
   top: 0;
