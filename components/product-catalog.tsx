@@ -1,20 +1,10 @@
 import type { CSSProperties } from "react";
 import { ProductIcon, productIconByCode, type ProductIconKey } from "@/components/product-icon";
-import { OfficialProductRoadmap } from "@/components/official-product-roadmap";
 
 type ProductSummary = {
   code: string;
   title: string;
   moduleCount: number;
-};
-
-type SharedModuleSummary = {
-  code: string;
-  title: string;
-  products: Array<{
-    code: string;
-    title: string;
-  }>;
 };
 
 type GridPosition = {
@@ -145,36 +135,6 @@ function ProductsGrid({ products }: { products: ProductSummary[] }) {
   );
 }
 
-function SharedModulesList({ modules }: { modules: SharedModuleSummary[] }) {
-  return (
-    <div className="shared-module-table" role="table" aria-label="Paylaşılan modüller">
-      <div className="shared-module-table-header" role="row">
-        <span role="columnheader">Modül</span>
-        <span role="columnheader">Kullanıldığı ürünler</span>
-      </div>
-      <div className="shared-module-table-body" role="rowgroup">
-        {modules.map((module) => (
-          <article className="shared-module-row" role="row" key={module.code}>
-            <strong role="cell">{module.title}</strong>
-            <div className="shared-module-products" role="cell">
-              {module.products.map((product) => {
-                const icon = productIconByCode[product.code];
-
-                return (
-                  <span className="shared-module-product-badge" key={product.code}>
-                    {icon ? <ProductIcon icon={icon} /> : null}
-                    {product.title}
-                  </span>
-                );
-              })}
-            </div>
-          </article>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function PackageGroupsGrid() {
   return (
     <div className="package-fixed-grid" aria-label="İhtiyaca göre paketler">
@@ -210,10 +170,8 @@ function PackageGroupsGrid() {
 
 export function ProductCatalog({
   products,
-  sharedModules,
 }: {
   products: ProductSummary[];
-  sharedModules: SharedModuleSummary[];
 }) {
   return (
     <div className="product-catalog-stack">
@@ -224,13 +182,6 @@ export function ProductCatalog({
         <PackageGroupsGrid />
       </section>
 
-      <section className="catalog-section" aria-labelledby="shared-section-title">
-        <header className="catalog-section-heading">
-          <h2 id="shared-section-title">Paylaşılan Modüller</h2>
-        </header>
-        <SharedModulesList modules={sharedModules} />
-      </section>
-
       <section className="catalog-section" aria-labelledby="products-section-title">
         <header className="catalog-section-heading">
           <h2 id="products-section-title">Tüm Ürünler</h2>
@@ -238,12 +189,6 @@ export function ProductCatalog({
         <ProductsGrid products={products} />
       </section>
 
-      <section className="catalog-section" aria-labelledby="official-path-section-title">
-        <header className="catalog-section-heading">
-          <h2 id="official-path-section-title">OnSuite Ürün Ekosistemi</h2>
-        </header>
-        <OfficialProductRoadmap />
-      </section>
     </div>
   );
 }
