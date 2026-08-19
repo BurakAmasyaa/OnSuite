@@ -1,6 +1,7 @@
 import {
   getRecommendationCandidates,
   recommendSolution,
+  unknownSummary,
   type RecommendationCandidates,
   type RecommendationResult,
 } from "@/lib/recommend-solution";
@@ -29,12 +30,13 @@ function parseRecommendationResult(value: unknown, candidates: RecommendationCan
     productId: module.productId as string,
   }));
 
-  if (products.length === 0 && modules.length === 0) {
-    throw new Error("Recommendation response has no valid candidates");
-  }
+  // An empty selection is a legitimate AI answer (the need doesn't match the
+  // OnSuite catalog), not an error — it must not be masked by the local
+  // fallback, so it's returned as-is rather than thrown.
+  const isNoMatch = products.length === 0 && modules.length === 0;
 
   return {
-    summary: "İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.",
+    summary: isNoMatch ? unknownSummary : "İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.",
     products,
     modules,
   };

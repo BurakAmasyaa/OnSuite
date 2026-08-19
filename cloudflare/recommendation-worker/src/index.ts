@@ -1,7 +1,8 @@
-const MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+const MODEL = "@cf/qwen/qwen3-30b-a3b-fp8";
 const MAX_NEED_LENGTH = 1000;
-const MAX_PRODUCTS = 8;
-const MAX_MODULES = 12;
+const MAX_PRODUCTS = 20;
+const MAX_MODULES = 200;
+const MAX_OUTPUT_TOKENS = 400;
 
 type CandidateProduct = { id: string; name: string; description: string };
 type CandidateModule = { id: string; productId: string; name: string; description: string };
@@ -10,11 +11,14 @@ type AIRecommendationSelection = { productIds: string[]; modules: { id: string; 
 type AiBinding = { run: (model: string, options: Record<string, unknown>) => Promise<unknown> };
 type Env = { AI: AiBinding; ALLOWED_ORIGINS?: string };
 
-const SYSTEM_PROMPT = `You are only an ID selection engine.
-Select the smallest useful set of IDs from the supplied candidate list.
-You must select only IDs from the supplied candidates and never invent an ID.
-You must never generate OnSuite product facts, capabilities, descriptions, reasons, benefits, or technical claims.
-Return only the requested structured IDs.`;
+const SYSTEM_PROMPT = `You are an OnSuite product/module selection engine.
+Understand the user's production/industrial need semantically, not only through exact keyword matching. Many needs are written as natural Turkish sentences with no exact keyword overlap with the catalog text — read them for meaning, not literal string matches.
+You are given a fixed canonical candidate catalog of OnSuite products and modules.
+Select only IDs from this catalog. Never invent an ID.
+Never invent OnSuite facts, capabilities, reasons, benefits, or descriptions.
+If the user's request is unrelated to the supplied OnSuite catalog, return empty arrays for both productIds and modules — this is a valid answer, not a failure.
+Prefer the smallest useful product/module set that addresses the need.
+Return only the required structured output.`;
 
 const RESPONSE_FORMAT = {
   type: "json_schema",
@@ -106,7 +110,9 @@ function validateSelection(selection: AIRecommendationSelection, request: Recomm
   const moduleKeys = new Set(request.modules.map((module) => `${module.productId}:${module.id}`));
   const validProductIds = [...new Set(selection.productIds)].filter((id) => productIds.has(id)).slice(0, 3);
   const validModules = selection.modules.filter((module) => moduleKeys.has(`${module.productId}:${module.id}`)).slice(0, 6);
-  if (validProductIds.length === 0 && validModules.length === 0) throw new Error("No valid selection");
+  // An empty result (model said no match, or every returned id failed the
+  // allowlist check) is a valid answer and must be returned as-is, not
+  // treated as a request failure.
   return { productIds: validProductIds, modules: validModules };
 }
 
@@ -128,7 +134,9 @@ export default {
 
     try {
       const response = await env.AI.run(MODEL, {
-        temperature: 0.15,
+        temperature: 0.1,
+        max_tokens: MAX_OUTPUT_TOKENS,
+        stream: false,
         response_format: RESPONSE_FORMAT,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },

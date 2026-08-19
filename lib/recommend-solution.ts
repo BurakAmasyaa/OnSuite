@@ -94,13 +94,38 @@ const recommendationRules: RecommendationRule[] = [
 ];
 
 const genericSummary = "İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.";
-const unknownSummary = "İhtiyacınızı biraz daha detaylandırabilirsiniz. Üretimde geliştirmek istediğiniz alanı belirtin.";
+export const unknownSummary = "İhtiyacınızı biraz daha detaylandırabilirsiniz. Üretimde geliştirmek istediğiniz alanı belirtin.";
+
+const MAX_CANDIDATE_PRODUCTS = 20;
+const MAX_CANDIDATE_MODULES = 200;
 
 const normalizeNeed = (need: string) => need
   .toLocaleLowerCase("tr-TR")
   .replace(/[ıİ]/g, "i")
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "");
+
+const GIBBERISH_CHECK_MIN_LENGTH = 6;
+const GIBBERISH_MIN_UNIQUE_CHAR_RATIO = 0.45;
+
+/**
+ * Catches single-token keyboard-mash input (e.g. "sdasdasdsad") without
+ * touching real natural-language input: multi-word text always passes
+ * untouched, and short tokens (<=5 chars) are never flagged, so real
+ * short acronyms/codes like "OEE" or "SPS" are unaffected. Only a single
+ * token of at least 6 characters with unusually low character variety
+ * (a hallmark of repetitive key-mashing, not real words) is rejected.
+ */
+function looksLikeGibberish(trimmedNeed: string): boolean {
+  const words = trimmedNeed.split(/\s+/).filter(Boolean);
+  if (words.length !== 1) return false;
+
+  const token = normalizeNeed(words[0]).replace(/[^a-z0-9]/g, "");
+  if (token.length < GIBBERISH_CHECK_MIN_LENGTH) return false;
+
+  const uniqueCharRatio = new Set(token).size / token.length;
+  return uniqueCharRatio < GIBBERISH_MIN_UNIQUE_CHAR_RATIO;
+}
 
 function getRecommendationMatches(userNeed: string) {
   const normalizedNeed = normalizeNeed(userNeed.trim());
@@ -116,27 +141,17 @@ function getRecommendationMatches(userNeed: string) {
     .sort((left, right) => right.score - left.score || left.index - right.index);
 }
 
-export function getRecommendationCandidates(userNeed: string): RecommendationCandidates | null {
-  const matches = getRecommendationMatches(userNeed);
-  if (matches.length === 0) return null;
-
-  const productIds = new Set<string>();
-  const moduleKeys = new Set<string>();
-  for (const { rule } of matches) {
-    rule.products.forEach((id) => productIds.add(id));
-    rule.modules.forEach((item) => moduleKeys.add(`${item.productId}:${item.id}`));
-  }
-
+function buildCandidates(productIds: string[], moduleKeys: string[]): RecommendationCandidates {
   return {
-    products: [...productIds].map((id) => {
+    products: productIds.map((id) => {
       const product = products.find((item) => item.AppProductCode === id);
       return product ? {
         id,
         name: product.ProductTitleTR ?? product.ProductTitleEN ?? id,
         description: product.ProductShortDescriptionTR ?? product.ProductShortDescriptionEN ?? "",
       } : null;
-    }).filter((item): item is RecommendationCandidateProduct => item !== null).slice(0, 8),
-    modules: [...moduleKeys].map((key) => {
+    }).filter((item): item is RecommendationCandidateProduct => item !== null).slice(0, MAX_CANDIDATE_PRODUCTS),
+    modules: moduleKeys.map((key) => {
       const [productId, id] = key.split(":");
       const moduleData = modules.find((item) => item.AppProductCode === productId && item.AppModuleCode === id);
       return moduleData ? {
@@ -145,8 +160,38 @@ export function getRecommendationCandidates(userNeed: string): RecommendationCan
         name: moduleData.ModuleTitleTR ?? moduleData.ModuleTitleEN ?? id,
         description: moduleData.ModuleShortDescriptionTR ?? moduleData.ModuleShortDescriptionEN ?? "",
       } : null;
-    }).filter((item): item is RecommendationCandidateModule => item !== null).slice(0, 12),
+    }).filter((item): item is RecommendationCandidateModule => item !== null).slice(0, MAX_CANDIDATE_MODULES),
   };
+}
+
+/**
+ * Local keyword rules are a fast-path ranking signal, not a hard gate: a strong
+ * match narrows the candidate pool sent to the AI, but the absence of an exact
+ * keyword match still returns the full verified catalog so the AI can reason
+ * about natural-language input it wasn't keyword-matched against. Only empty
+ * input, or input that looks like keyboard-mash gibberish, returns null (the
+ * AI call is skipped entirely in that case).
+ */
+export function getRecommendationCandidates(userNeed: string): RecommendationCandidates | null {
+  const trimmed = userNeed.trim();
+  if (!trimmed) return null;
+
+  const matches = getRecommendationMatches(trimmed);
+  if (matches.length > 0) {
+    const productIds = new Set<string>();
+    const moduleKeys = new Set<string>();
+    for (const { rule } of matches) {
+      rule.products.forEach((id) => productIds.add(id));
+      rule.modules.forEach((item) => moduleKeys.add(`${item.productId}:${item.id}`));
+    }
+    return buildCandidates([...productIds], [...moduleKeys]);
+  }
+
+  if (looksLikeGibberish(trimmed)) return null;
+
+  const allProductIds = products.map((product) => product.AppProductCode);
+  const allModuleKeys = modules.map((module) => `${module.AppProductCode}:${module.AppModuleCode}`);
+  return buildCandidates(allProductIds, allModuleKeys);
 }
 
 export function recommendSolution(userNeed: string): RecommendationResult {
