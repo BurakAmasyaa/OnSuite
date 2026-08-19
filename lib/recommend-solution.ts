@@ -43,7 +43,7 @@ const recommendationRules: RecommendationRule[] = [
   },
   {
     terms: ["anlık", "gerçek zamanlı", "üretim takibi", "izlemek", "izleme"],
-    products: ["MONITORA", "CONNECTIVITY"],
+    products: ["MONITORA"],
     modules: [
       { id: "RPTREALTIME", productId: "MONITORA" },
       { id: "TRACEDASHBOARD", productId: "MONITORA" },
@@ -52,7 +52,7 @@ const recommendationRules: RecommendationRule[] = [
   },
   {
     terms: ["kalite", "hata", "kusur", "uygunsuz", "tamir"],
-    products: ["İZLENEBILIRLIK", "DSF"],
+    products: ["İZLENEBILIRLIK"],
     modules: [
       { id: "BLOCKING", productId: "İZLENEBILIRLIK" },
       { id: "CHECKLIST", productId: "İZLENEBILIRLIK" },
