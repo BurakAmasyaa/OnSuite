@@ -18,18 +18,10 @@ export default function HomePage() {
         </p>
         <div className="hero-actions">
           <Link className="button button-primary" href="/harita">Kataloğu incele</Link>
-          <Link className="button button-secondary" href="/mimari">Mimariyi incele</Link>
         </div>
       </section>
 
       <SolutionRecommendation />
-
-      <section className="stat-grid" aria-label="Portföy özeti">
-        <article className="stat-card"><strong>{products.length}</strong><span>Ürün</span></article>
-        <article className="stat-card"><strong>{modules.length}</strong><span>Toplam modül</span></article>
-        <article className="stat-card"><strong>{liveModuleCount}</strong><span>Canlı modül</span></article>
-        <article className="stat-card"><strong>{sharedModules.length}</strong><span>Paylaşılan modül</span></article>
-      </section>
 
       <section id="mimari" className="architecture-home-section" aria-labelledby="home-architecture-title">
         <header className="page-heading architecture-heading">
@@ -41,6 +33,13 @@ export default function HomePage() {
           </p>
         </header>
         <ArchitectureStateTabs tiers={architectureTiers} />
+      </section>
+
+      <section className="stat-grid" aria-label="Portföy özeti">
+        <article className="stat-card"><strong>{products.length}</strong><span>Ürün</span></article>
+        <article className="stat-card"><strong>{modules.length}</strong><span>Toplam modül</span></article>
+        <article className="stat-card"><strong>{liveModuleCount}</strong><span>Canlı modül</span></article>
+        <article className="stat-card"><strong>{sharedModules.length}</strong><span>Paylaşılan modül</span></article>
       </section>
     </div>
   );

@@ -134,7 +134,7 @@ export function SolutionRecommendation() {
           value={userNeed}
           onChange={(event) => setUserNeed(event.target.value)}
           placeholder="Üretimde geliştirmek istediğiniz alanı yazın..."
-          rows={4}
+          rows={3}
         />
         <div className="solution-example-list" aria-label="Örnek ihtiyaçlar">
           <span>Örn:</span>
