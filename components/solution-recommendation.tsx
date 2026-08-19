@@ -34,6 +34,15 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
     selectedProducts.slice(0, 3).join(" + ") || "Eşleşen ürün yok",
   ];
 
+  if (resolvedProducts.length === 0 && resolvedModules.length === 0) {
+    return (
+      <div className="solution-recommendation-empty" aria-live="polite">
+        <strong>Eşleşen bir OnSuite çözümü bulamadım.</strong>
+        <p>Üretimde geliştirmek istediğiniz alanı biraz daha detaylandırarak tekrar deneyebilirsiniz.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="solution-recommendation-result" aria-live="polite">
       <p className="eyebrow">Önerilen çözüm</p>
