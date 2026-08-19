@@ -104,6 +104,7 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
   const stackRef = useRef<HTMLElement>(null);
   const hasInteractedRef = useRef(false);
   const tierSlotsRef = useRef<Array<HTMLDivElement | null>>([]);
+  const hoverIntentRef = useRef<number | null>(null);
   const [hasEntered, setHasEntered] = useState(false);
   const [expandedTier, setExpandedTier] = useState<number | null>(null);
   const [visibleTier, setVisibleTier] = useState(0);
@@ -129,6 +130,14 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
     observer.observe(stack);
 
     return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (hoverIntentRef.current !== null) {
+        window.clearTimeout(hoverIntentRef.current);
+      }
+    };
   }, []);
 
   useEffect(() => {
@@ -160,25 +169,39 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
 
   const isCompactLayout = () => window.matchMedia("(max-width: 900px)").matches;
 
+  const clearHoverIntent = () => {
+    if (hoverIntentRef.current !== null) {
+      window.clearTimeout(hoverIntentRef.current);
+      hoverIntentRef.current = null;
+    }
+  };
+
   const handlePointerEnter = (event: PointerEvent<HTMLElement>, index: number) => {
     if (event.pointerType === "mouse" && !isCompactLayout()) {
-      hasInteractedRef.current = true;
-      setExpandedTier(index);
+      clearHoverIntent();
+      hoverIntentRef.current = window.setTimeout(() => {
+        hoverIntentRef.current = null;
+        hasInteractedRef.current = true;
+        setExpandedTier(index);
+      }, 130);
     }
   };
 
   const handlePointerLeave = (event: PointerEvent<HTMLElement>) => {
-    if (
-      event.pointerType === "mouse" &&
-      !isCompactLayout() &&
-      !event.currentTarget.contains(document.activeElement)
-    ) {
+    if (event.pointerType !== "mouse" || isCompactLayout()) {
+      return;
+    }
+
+    clearHoverIntent();
+
+    if (!event.currentTarget.contains(document.activeElement)) {
       setExpandedTier(null);
     }
   };
 
   const handleClick = (event: MouseEvent<HTMLButtonElement>, index: number) => {
     if (isCompactLayout() || event.detail === 0) {
+      clearHoverIntent();
       hasInteractedRef.current = true;
       setVisibleTier(index);
       setExpandedTier((current) => (current === index ? null : index));
@@ -187,6 +210,7 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
 
   const handleFocus = (index: number) => {
     if (!isCompactLayout()) {
+      clearHoverIntent();
       hasInteractedRef.current = true;
       setExpandedTier(index);
     }
