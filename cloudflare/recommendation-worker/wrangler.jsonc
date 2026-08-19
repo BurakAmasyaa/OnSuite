@@ -1,0 +1,13 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "onsuite-recommendation-worker",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-13",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI"
+  },
+  "vars": {
+    "ALLOWED_ORIGINS": "http://localhost:3000"
+  }
+}

@@ -1,3 +1,5 @@
+import { modules, products } from "@/lib/data";
+
 export type RecommendationProduct = {
   id: string;
   reason: string;
@@ -13,6 +15,24 @@ export type RecommendationResult = {
   summary: string;
   products: RecommendationProduct[];
   modules: RecommendationModule[];
+};
+
+export type RecommendationCandidateProduct = {
+  id: string;
+  name: string;
+  description: string;
+};
+
+export type RecommendationCandidateModule = {
+  id: string;
+  productId: string;
+  name: string;
+  description: string;
+};
+
+export type RecommendationCandidates = {
+  products: RecommendationCandidateProduct[];
+  modules: RecommendationCandidateModule[];
 };
 
 type RecommendationRule = {
@@ -114,6 +134,69 @@ const normalizeNeed = (need: string) => need
   .normalize("NFD")
   .replace(/[\u0300-\u036f]/g, "");
 
+function getRecommendationMatches(userNeed: string) {
+  const normalizedNeed = normalizeNeed(userNeed.trim());
+
+  if (!normalizedNeed) {
+    return [];
+  }
+
+  return recommendationRules
+    .map((rule, index) => ({
+      rule,
+      index,
+      score: rule.terms.reduce((score, term) => score + (normalizedNeed.includes(normalizeNeed(term)) ? 1 : 0), 0),
+    }))
+    .filter((match) => match.score > 0)
+    .sort((left, right) => right.score - left.score || left.index - right.index);
+}
+
+export function getRecommendationCandidates(userNeed: string): RecommendationCandidates | null {
+  const matches = getRecommendationMatches(userNeed);
+
+  if (matches.length === 0) {
+    return null;
+  }
+
+  const candidateProducts = new Map<string, RecommendationCandidateProduct>();
+  const candidateModules = new Map<string, RecommendationCandidateModule>();
+
+  for (const { rule } of matches) {
+    for (const productRecommendation of rule.products) {
+      const product = products.find((item) => item.AppProductCode === productRecommendation.id);
+
+      if (product && !candidateProducts.has(product.AppProductCode)) {
+        candidateProducts.set(product.AppProductCode, {
+          id: product.AppProductCode,
+          name: product.ProductTitleTR ?? product.ProductTitleEN ?? product.AppProductCode,
+          description: product.ProductShortDescriptionTR ?? product.ProductShortDescriptionEN ?? "",
+        });
+      }
+    }
+
+    for (const moduleRecommendation of rule.modules) {
+      const moduleData = modules.find(
+        (item) => item.AppProductCode === moduleRecommendation.productId && item.AppModuleCode === moduleRecommendation.id,
+      );
+
+      if (moduleData) {
+        const key = `${moduleData.AppProductCode}:${moduleData.AppModuleCode}`;
+        candidateModules.set(key, {
+          id: moduleData.AppModuleCode,
+          productId: moduleData.AppProductCode,
+          name: moduleData.ModuleTitleTR ?? moduleData.ModuleTitleEN ?? moduleData.AppModuleCode,
+          description: moduleData.ModuleShortDescriptionTR ?? moduleData.ModuleShortDescriptionEN ?? "",
+        });
+      }
+    }
+  }
+
+  return {
+    products: [...candidateProducts.values()].slice(0, 8),
+    modules: [...candidateModules.values()].slice(0, 12),
+  };
+}
+
 export function recommendSolution(userNeed: string): RecommendationResult {
   const normalizedNeed = normalizeNeed(userNeed.trim());
 
@@ -125,14 +208,7 @@ export function recommendSolution(userNeed: string): RecommendationResult {
     };
   }
 
-  const matches = recommendationRules
-    .map((rule, index) => ({
-      rule,
-      index,
-      score: rule.terms.reduce((score, term) => score + (normalizedNeed.includes(normalizeNeed(term)) ? 1 : 0), 0),
-    }))
-    .filter((match) => match.score > 0)
-    .sort((left, right) => right.score - left.score || left.index - right.index);
+  const matches = getRecommendationMatches(userNeed);
 
   if (matches.length === 0) {
     return {

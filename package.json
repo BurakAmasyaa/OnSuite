@@ -11,6 +11,9 @@
     "postbuild": "opennextjs-cloudflare build --skipBuild && node scripts/prepare-sites-dist.mjs",
     "build:vercel": "next build",
     "build:worker": "npm run build",
+    "typecheck:recommendation-worker": "tsc --noEmit -p cloudflare/recommendation-worker/tsconfig.json",
+    "worker:recommendation:dev": "wrangler dev --config cloudflare/recommendation-worker/wrangler.jsonc",
+    "worker:recommendation:deploy": "wrangler deploy --config cloudflare/recommendation-worker/wrangler.jsonc",
     "start": "next start",
     "lint": "next lint"
   },

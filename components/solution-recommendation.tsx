@@ -3,7 +3,8 @@
 import { FormEvent, useState } from "react";
 import { ProductIcon, productIconByCode } from "@/components/product-icon";
 import { modules, products } from "@/lib/data";
-import { recommendSolution, type RecommendationResult } from "@/lib/recommend-solution";
+import { getAIRecommendation } from "@/lib/recommendation-client";
+import type { RecommendationResult } from "@/lib/recommend-solution";
 
 const exampleNeeds = [
   "Verimliliği artırmak istiyorum",
@@ -105,10 +106,15 @@ export function SolutionRecommendation() {
   const [userNeed, setUserNeed] = useState("");
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [validationMessage, setValidationMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const trimmedNeed = userNeed.trim();
+
+    if (isLoading) {
+      return;
+    }
 
     if (!trimmedNeed) {
       setResult(null);
@@ -117,7 +123,9 @@ export function SolutionRecommendation() {
     }
 
     setValidationMessage("");
-    setResult(recommendSolution(trimmedNeed));
+    setIsLoading(true);
+    setResult(await getAIRecommendation(trimmedNeed));
+    setIsLoading(false);
   };
 
   return (
@@ -145,7 +153,9 @@ export function SolutionRecommendation() {
           ))}
         </div>
         <div className="solution-form-footer">
-          <button className="button button-primary" type="submit">Çözüm öner</button>
+          <button className="button button-primary" type="submit" disabled={isLoading}>
+            {isLoading ? "Öneriliyor..." : "Çözüm öner"}
+          </button>
           {validationMessage ? <p className="solution-validation" role="alert">{validationMessage}</p> : null}
         </div>
       </form>
