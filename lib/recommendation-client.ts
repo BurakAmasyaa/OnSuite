@@ -58,7 +58,7 @@ export async function getAIRecommendation(userNeed: string): Promise<Recommendat
     const response = await fetch(`${endpoint.replace(/\/$/, "")}/recommend`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userNeed, ...candidates }),
+      body: JSON.stringify({ userNeed, products: candidates.products, modules: candidates.modules }),
       signal: controller.signal,
     });
 
@@ -66,7 +66,19 @@ export async function getAIRecommendation(userNeed: string): Promise<Recommendat
       throw new Error("Recommendation request failed");
     }
 
-    return parseRecommendationResult(await response.json(), candidates);
+    const aiResult = parseRecommendationResult(await response.json(), candidates);
+    const aiIsEmpty = aiResult.products.length === 0 && aiResult.modules.length === 0;
+    const localIsVerifiedMatch = localResult.products.length > 0 || localResult.modules.length > 0;
+
+    // A verified local fast-path match is trusted over an AI response that
+    // came back empty (model uncertainty, JSON-mode quirk, etc). An empty AI
+    // answer only counts as a genuine no-match on the broad/semantic path,
+    // where there was no local keyword signal to begin with.
+    if (candidates.mode === "fast" && aiIsEmpty && localIsVerifiedMatch) {
+      return localResult;
+    }
+
+    return aiResult;
   } catch {
     return localResult;
   } finally {

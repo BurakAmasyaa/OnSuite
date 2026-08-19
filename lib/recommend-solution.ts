@@ -19,9 +19,11 @@ export type RecommendationCandidateModule = {
   name: string;
   description: string;
 };
+export type RecommendationCandidateMode = "fast" | "broad";
 export type RecommendationCandidates = {
   products: RecommendationCandidateProduct[];
   modules: RecommendationCandidateModule[];
+  mode: RecommendationCandidateMode;
 };
 
 type RecommendationRule = {
@@ -141,8 +143,9 @@ function getRecommendationMatches(userNeed: string) {
     .sort((left, right) => right.score - left.score || left.index - right.index);
 }
 
-function buildCandidates(productIds: string[], moduleKeys: string[]): RecommendationCandidates {
+function buildCandidates(productIds: string[], moduleKeys: string[], mode: RecommendationCandidateMode): RecommendationCandidates {
   return {
+    mode,
     products: productIds.map((id) => {
       const product = products.find((item) => item.AppProductCode === id);
       return product ? {
@@ -166,11 +169,12 @@ function buildCandidates(productIds: string[], moduleKeys: string[]): Recommenda
 
 /**
  * Local keyword rules are a fast-path ranking signal, not a hard gate: a strong
- * match narrows the candidate pool sent to the AI, but the absence of an exact
- * keyword match still returns the full verified catalog so the AI can reason
- * about natural-language input it wasn't keyword-matched against. Only empty
- * input, or input that looks like keyboard-mash gibberish, returns null (the
- * AI call is skipped entirely in that case).
+ * match narrows the candidate pool sent to the AI (mode "fast"), but the
+ * absence of an exact keyword match still returns the full verified catalog
+ * (mode "broad") so the AI can reason about natural-language input it wasn't
+ * keyword-matched against. The mode lets the caller decide how much to trust
+ * an empty AI response: only empty input, or input that looks like
+ * keyboard-mash gibberish, returns null (the AI call is skipped entirely).
  */
 export function getRecommendationCandidates(userNeed: string): RecommendationCandidates | null {
   const trimmed = userNeed.trim();
@@ -184,14 +188,14 @@ export function getRecommendationCandidates(userNeed: string): RecommendationCan
       rule.products.forEach((id) => productIds.add(id));
       rule.modules.forEach((item) => moduleKeys.add(`${item.productId}:${item.id}`));
     }
-    return buildCandidates([...productIds], [...moduleKeys]);
+    return buildCandidates([...productIds], [...moduleKeys], "fast");
   }
 
   if (looksLikeGibberish(trimmed)) return null;
 
   const allProductIds = products.map((product) => product.AppProductCode);
   const allModuleKeys = modules.map((module) => `${module.AppProductCode}:${module.AppModuleCode}`);
-  return buildCandidates(allProductIds, allModuleKeys);
+  return buildCandidates(allProductIds, allModuleKeys, "broad");
 }
 
 export function recommendSolution(userNeed: string): RecommendationResult {

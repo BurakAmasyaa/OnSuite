@@ -1,4 +1,4 @@
-const MODEL = "@cf/qwen/qwen3-30b-a3b-fp8";
+const MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
 const MAX_NEED_LENGTH = 1000;
 const MAX_PRODUCTS = 20;
 const MAX_MODULES = 200;
