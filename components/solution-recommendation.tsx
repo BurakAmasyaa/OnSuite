@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { ProductIcon, productIconByCode } from "@/components/product-icon";
-import { modules, products } from "@/lib/data";
+import { getOfficialProductDescription, modules, products } from "@/lib/data";
 import { getAIRecommendation } from "@/lib/recommendation-client";
 import type { RecommendationResult } from "@/lib/recommend-solution";
 
@@ -55,12 +55,14 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
             {resolvedProducts.map(({ recommendation, product }) => {
               const productId = recommendation.id;
               const icon = productIconByCode[product!.AppProductCode];
+              const officialDescription = getOfficialProductDescription(productId);
 
               return (
                 <article className="solution-product-card" key={productId}>
                   {icon ? <ProductIcon icon={icon} /> : null}
                   <div>
                     <h4>{getProductTitle(productId)}</h4>
+                    {officialDescription ? <p>{officialDescription}</p> : null}
                     <a href="/harita#products-section-title">Katalogda görüntüle</a>
                   </div>
                 </article>
@@ -74,14 +76,19 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
         <div className="solution-result-group">
           <h3>Önerilen Modüller</h3>
           <div className="solution-module-list">
-            {resolvedModules.map(({ recommendation, module }) => (
-              <article className="solution-module-item" key={`${recommendation.productId}:${recommendation.id}`}>
-                <div>
-                  <strong>{module!.ModuleTitleTR ?? module!.ModuleTitleEN ?? recommendation.id}</strong>
-                  <span>{getProductTitle(recommendation.productId)}</span>
-                </div>
-              </article>
-            ))}
+            {resolvedModules.map(({ recommendation, module }) => {
+              const moduleDescription = module!.ModuleShortDescriptionTR ?? module!.ModuleShortDescriptionEN;
+
+              return (
+                <article className="solution-module-item" key={`${recommendation.productId}:${recommendation.id}`}>
+                  <div>
+                    <strong>{module!.ModuleTitleTR ?? module!.ModuleTitleEN ?? recommendation.id}</strong>
+                    <span>{getProductTitle(recommendation.productId)}</span>
+                  </div>
+                  {moduleDescription ? <p>{moduleDescription}</p> : null}
+                </article>
+              );
+            })}
           </div>
         </div>
       ) : null}

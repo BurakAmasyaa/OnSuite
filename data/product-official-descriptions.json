@@ -1,0 +1,57 @@
+[
+  {
+    "productCode": "CORE",
+    "description": "OnSuite Core ile tüm modüller için ortak altyapı kurun, yetki ve platform servislerini merkezi yönetin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/core"
+  },
+  {
+    "productCode": "CONNECTIVITY",
+    "description": "OnSuite Connect ile farklı makine ve sistemlerden veri toplayın, bağlantıları merkezi ve sürdürülebilir bir yapıda yönetin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/connect"
+  },
+  {
+    "productCode": "CNC",
+    "description": "OnSuite CNC ile tezgah verisini dijital ortama taşıyın, veri akışlarını standartlaştırın ve operasyonu güçlendirin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/cnc"
+  },
+  {
+    "productCode": "MONITORA",
+    "description": "OnSuite Live ile üretimi gerçek zamanlı izleyin, kritik olayları hızla görün ve operasyonel görünürlüğü artırın.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/live"
+  },
+  {
+    "productCode": "OEE",
+    "description": "OnSuite Optima ile OEE ve performans kayıplarını analiz edin, verimlilik iyileştirme çalışmalarını güçlendirin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/optima"
+  },
+  {
+    "productCode": "İZLENEBILIRLIK",
+    "description": "OnSuite Trace ile ürün, lot ve seri bazlı izlenebilirliği uçtan uca yönetin ve kalite güvencesini destekleyin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/trace"
+  },
+  {
+    "productCode": "DSF",
+    "description": "OnSuite Forms ile saha formları ve kontrol akışlarını dijitalleştirin, kayıt kalitesini ve erişilebilirliği artırın.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/forms"
+  },
+  {
+    "productCode": "OPCTMC",
+    "description": "OnSuite TMC ile OPC UA TMC protokolü üzerinden tütün makinelerinden veri toplayın ve süreçleri izleyin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/tmc"
+  },
+  {
+    "productCode": "CARBONIQ",
+    "description": "OnSuite Green ile karbon ayak izi ve sürdürülebilirlik hedeflerinizi veriyle yönetin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/green"
+  },
+  {
+    "productCode": "ENTEGRASYON",
+    "description": "OnSuite Integra ile ERP, MES ve diğer kurumsal sistemlerle veri alışverişini merkezi ve kontrollü şekilde yönetin.",
+    "sourceUrl": "https://onsuite.com.tr/tr/moduller/integra"
+  },
+  {
+    "productCode": "ENGAGE",
+    "description": "OnSuite Engage, acil durumlarda çalışan güvenliğini hızlıca doğrulamanızı sağlayan çift kanallı kriz yönetim çözümüdür.",
+    "sourceUrl": "https://onsuite.com.tr/tr/engage"
+  }
+]

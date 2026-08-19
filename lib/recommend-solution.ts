@@ -1,4 +1,4 @@
-import { modules, products } from "@/lib/data";
+import { getOfficialProductDescription, modules, products } from "@/lib/data";
 
 export type RecommendationProduct = { id: string };
 export type RecommendationModule = { id: string; productId: string };
@@ -19,12 +19,23 @@ export type RecommendationCandidateModule = {
   name: string;
   description: string;
 };
-export type RecommendationCandidateMode = "fast" | "broad";
-export type RecommendationCandidates = {
-  products: RecommendationCandidateProduct[];
-  modules: RecommendationCandidateModule[];
-  mode: RecommendationCandidateMode;
+/** Stage 1 (broad path) product candidate: description is sourced only from
+ * the verified onsuite.com.tr canonical data, never fabricated. */
+export type RecommendationStage1Product = {
+  id: string;
+  name: string;
+  officialDescription: string;
 };
+
+/**
+ * "fast": a local keyword rule matched — products/modules are the narrow,
+ * pre-scored candidate set for the existing single-call flow (unchanged).
+ * "broad": no local match — the caller runs the two-stage product-then-module
+ * flow instead (see getStage1ProductCandidates / getStage2ModuleCandidates).
+ */
+export type RecommendationPlan =
+  | { mode: "fast"; products: RecommendationCandidateProduct[]; modules: RecommendationCandidateModule[] }
+  | { mode: "broad" };
 
 type RecommendationRule = {
   terms: string[];
@@ -100,6 +111,7 @@ export const unknownSummary = "İhtiyacınızı biraz daha detaylandırabilirsin
 
 const MAX_CANDIDATE_PRODUCTS = 20;
 const MAX_CANDIDATE_MODULES = 200;
+const MAX_STAGE2_MODULES = 80;
 
 const normalizeNeed = (need: string) => need
   .toLocaleLowerCase("tr-TR")
@@ -143,9 +155,8 @@ function getRecommendationMatches(userNeed: string) {
     .sort((left, right) => right.score - left.score || left.index - right.index);
 }
 
-function buildCandidates(productIds: string[], moduleKeys: string[], mode: RecommendationCandidateMode): RecommendationCandidates {
+function buildFastCandidates(productIds: string[], moduleKeys: string[]): { products: RecommendationCandidateProduct[]; modules: RecommendationCandidateModule[] } {
   return {
-    mode,
     products: productIds.map((id) => {
       const product = products.find((item) => item.AppProductCode === id);
       return product ? {
@@ -168,15 +179,15 @@ function buildCandidates(productIds: string[], moduleKeys: string[], mode: Recom
 }
 
 /**
- * Local keyword rules are a fast-path ranking signal, not a hard gate: a strong
- * match narrows the candidate pool sent to the AI (mode "fast"), but the
- * absence of an exact keyword match still returns the full verified catalog
- * (mode "broad") so the AI can reason about natural-language input it wasn't
- * keyword-matched against. The mode lets the caller decide how much to trust
- * an empty AI response: only empty input, or input that looks like
- * keyboard-mash gibberish, returns null (the AI call is skipped entirely).
+ * Local keyword rules are a fast-path ranking signal, not a hard gate: a
+ * strong match narrows the candidate pool sent to the AI in a single call
+ * (mode "fast", unchanged behavior). The absence of an exact keyword match
+ * means the caller should run the two-stage broad flow instead (mode
+ * "broad") — see getStage1ProductCandidates / getStage2ModuleCandidates.
+ * Only empty input, or input that looks like keyboard-mash gibberish,
+ * returns null (the AI call is skipped entirely).
  */
-export function getRecommendationCandidates(userNeed: string): RecommendationCandidates | null {
+export function getRecommendationPlan(userNeed: string): RecommendationPlan | null {
   const trimmed = userNeed.trim();
   if (!trimmed) return null;
 
@@ -188,14 +199,38 @@ export function getRecommendationCandidates(userNeed: string): RecommendationCan
       rule.products.forEach((id) => productIds.add(id));
       rule.modules.forEach((item) => moduleKeys.add(`${item.productId}:${item.id}`));
     }
-    return buildCandidates([...productIds], [...moduleKeys], "fast");
+    return { mode: "fast", ...buildFastCandidates([...productIds], [...moduleKeys]) };
   }
 
   if (looksLikeGibberish(trimmed)) return null;
 
-  const allProductIds = products.map((product) => product.AppProductCode);
-  const allModuleKeys = modules.map((module) => `${module.AppProductCode}:${module.AppModuleCode}`);
-  return buildCandidates(allProductIds, allModuleKeys, "broad");
+  return { mode: "broad" };
+}
+
+/** Stage 1 candidates: all canonical products, with descriptions sourced
+ * only from the verified onsuite.com.tr canonical data (never fabricated —
+ * a product without a verified official page simply has an empty string). */
+export function getStage1ProductCandidates(): RecommendationStage1Product[] {
+  return products.map((product) => ({
+    id: product.AppProductCode,
+    name: product.ProductTitleTR ?? product.ProductTitleEN ?? product.AppProductCode,
+    officialDescription: getOfficialProductDescription(product.AppProductCode) ?? "",
+  }));
+}
+
+/** Stage 2 candidates: only the modules belonging to the given (Stage 1
+ * selected) product IDs, from the canonical Excel-derived module data. */
+export function getStage2ModuleCandidates(productIds: string[]): RecommendationCandidateModule[] {
+  const productIdSet = new Set(productIds);
+  return modules
+    .filter((module) => productIdSet.has(module.AppProductCode))
+    .map((module) => ({
+      id: module.AppModuleCode,
+      productId: module.AppProductCode,
+      name: module.ModuleTitleTR ?? module.ModuleTitleEN ?? module.AppModuleCode,
+      description: module.ModuleShortDescriptionTR ?? module.ModuleShortDescriptionEN ?? "",
+    }))
+    .slice(0, MAX_STAGE2_MODULES);
 }
 
 export function recommendSolution(userNeed: string): RecommendationResult {
