@@ -20,7 +20,7 @@ Worker deploy öncesinde Wrangler ile giriş yapıp production origin'ini belirt
 
 ```bash
 npx wrangler login
-npx wrangler deploy --config cloudflare/recommendation-worker/wrangler.jsonc --var ALLOWED_ORIGINS:https://your-app.example
+npx wrangler deploy --config cloudflare/recommendation-worker/wrangler.jsonc --var ALLOWED_ORIGINS:http://localhost:3000,https://on-suite.vercel.app
 ```
 
 Sonra Next.js build ortamında `NEXT_PUBLIC_RECOMMENDATION_API_URL` değerini Worker URL'si ile tanımlayın.
