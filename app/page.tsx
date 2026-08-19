@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArchitectureStateTabs } from "@/components/architecture-state-tabs";
+import { SolutionRecommendation } from "@/components/solution-recommendation";
 import { architectureTiers } from "@/lib/architecture";
 import { modules, products, sharedModules } from "@/lib/data";
 
@@ -39,6 +40,8 @@ export default function HomePage() {
         </header>
         <ArchitectureStateTabs tiers={architectureTiers} />
       </section>
+
+      <SolutionRecommendation />
     </div>
   );
 }

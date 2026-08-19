@@ -1,6 +1,5 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useState, type CSSProperties } from "react";
 import { ArchitectureTierStack, type ArchitectureTier } from "@/components/architecture-tier-stack";
 
@@ -166,7 +165,6 @@ function OnSuiteArchitecture() {
 
 export function ArchitectureStateTabs({ tiers }: { tiers: ArchitectureTier[] }) {
   const [activeTab, setActiveTab] = useState<ArchitectureTab>("today");
-  const prefersReducedMotion = useReducedMotion();
 
   const handleTabClick = (nextTab: ArchitectureTab) => setActiveTab(nextTab);
 
@@ -211,22 +209,15 @@ export function ArchitectureStateTabs({ tiers }: { tiers: ArchitectureTier[] }) 
       </div>
 
       <div className={`architecture-tab-stage architecture-tab-stage-${activeTab}`}>
-        <AnimatePresence initial={false} mode="wait">
-          <motion.div
-            key={activeTab}
-            id={`architecture-panel-${activeTab}`}
-            role="tabpanel"
-            aria-labelledby={`architecture-tab-${activeTab}`}
-            initial={prefersReducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={prefersReducedMotion ? { duration: 0 } : { duration: 0.24, ease: "easeInOut" }}
-          >
-            {activeTab === "today" ? <TodayArchitecture /> : null}
-            {activeTab === "onsuite" ? <OnSuiteArchitecture /> : null}
-            {activeTab === "architecture" ? <ArchitectureTierStack tiers={tiers} /> : null}
-          </motion.div>
-        </AnimatePresence>
+        <div
+          id={`architecture-panel-${activeTab}`}
+          role="tabpanel"
+          aria-labelledby={`architecture-tab-${activeTab}`}
+        >
+          {activeTab === "today" ? <TodayArchitecture /> : null}
+          {activeTab === "onsuite" ? <OnSuiteArchitecture /> : null}
+          {activeTab === "architecture" ? <ArchitectureTierStack tiers={tiers} /> : null}
+        </div>
       </div>
     </section>
   );
