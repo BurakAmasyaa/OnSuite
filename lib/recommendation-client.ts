@@ -12,37 +12,29 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function parseRecommendationResult(value: unknown, candidates: RecommendationCandidates): RecommendationResult {
-  if (!isRecord(value) || typeof value.summary !== "string" || !Array.isArray(value.products) || !Array.isArray(value.modules)) {
+  if (!isRecord(value) || !Array.isArray(value.productIds) || !Array.isArray(value.modules)) {
     throw new Error("Invalid recommendation response");
   }
 
   const candidateProducts = new Set(candidates.products.map((product) => product.id));
   const candidateModules = new Map(candidates.modules.map((module) => [`${module.productId}:${module.id}`, module]));
-  const products = value.products.filter(isRecord).filter((product) => (
-    typeof product.id === "string" &&
-    typeof product.reason === "string" &&
-    candidateProducts.has(product.id)
-  )).slice(0, 3).map((product) => ({
-    id: product.id as string,
-    reason: (product.reason as string).slice(0, 280),
-  }));
+  const products = value.productIds.filter((id): id is string => typeof id === "string" && candidateProducts.has(id))
+    .slice(0, 3).map((id) => ({ id }));
   const modules = value.modules.filter(isRecord).filter((module) => (
     typeof module.id === "string" &&
     typeof module.productId === "string" &&
-    typeof module.reason === "string" &&
     candidateModules.has(`${module.productId}:${module.id}`)
   )).slice(0, 6).map((module) => ({
     id: module.id as string,
     productId: module.productId as string,
-    reason: (module.reason as string).slice(0, 280),
   }));
 
-  if (!value.summary.trim() || (products.length === 0 && modules.length === 0)) {
+  if (products.length === 0 && modules.length === 0) {
     throw new Error("Recommendation response has no valid candidates");
   }
 
   return {
-    summary: value.summary.slice(0, 600),
+    summary: "İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.",
     products,
     modules,
   };

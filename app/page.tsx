@@ -22,6 +22,8 @@ export default function HomePage() {
         </div>
       </section>
 
+      <SolutionRecommendation />
+
       <section className="stat-grid" aria-label="Portföy özeti">
         <article className="stat-card"><strong>{products.length}</strong><span>Ürün</span></article>
         <article className="stat-card"><strong>{modules.length}</strong><span>Toplam modül</span></article>
@@ -40,8 +42,6 @@ export default function HomePage() {
         </header>
         <ArchitectureStateTabs tiers={architectureTiers} />
       </section>
-
-      <SolutionRecommendation />
     </div>
   );
 }

@@ -6,11 +6,7 @@ import { modules, products } from "@/lib/data";
 import { getAIRecommendation } from "@/lib/recommendation-client";
 import type { RecommendationResult } from "@/lib/recommend-solution";
 
-const exampleNeeds = [
-  "Verimliliği artırmak istiyorum",
-  "Üretimi anlık takip etmek istiyorum",
-  "Kalite problemlerini azaltmak istiyorum",
-];
+const exampleNeeds = ["Verimlilik", "Anlık üretim takibi", "Kalite"];
 
 const productById = new Map(products.map((product) => [product.AppProductCode, product]));
 const moduleByKey = new Map(modules.map((module) => [`${module.AppProductCode}:${module.AppModuleCode}`, module]));
@@ -30,20 +26,18 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
       module: moduleByKey.get(`${recommendation.productId}:${recommendation.id}`),
     }))
     .filter((item) => item.module);
-  const operationalProducts = resolvedProducts
-    .filter(({ recommendation }) => !["CORE", "CONNECTIVITY"].includes(recommendation.id))
+  const selectedProducts = resolvedProducts
     .map(({ product }) => product?.ProductTitleTR ?? product?.ProductTitleEN)
     .filter(Boolean);
   const solutionPath = [
-    "Connect + Core",
-    operationalProducts.slice(0, 3).join(" + ") || "OnSuite ürünleri",
-    "Operasyonel çıktılar",
+    "Seçilen ürünler",
+    selectedProducts.slice(0, 3).join(" + ") || "Eşleşen ürün yok",
   ];
 
   return (
     <div className="solution-recommendation-result" aria-live="polite">
       <p className="eyebrow">Önerilen çözüm</p>
-      <p className="solution-recommendation-summary">{result.summary}</p>
+      <p className="solution-recommendation-summary">İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.</p>
 
       {resolvedProducts.length > 0 ? (
         <div className="solution-result-group">
@@ -58,7 +52,6 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
                   {icon ? <ProductIcon icon={icon} /> : null}
                   <div>
                     <h4>{getProductTitle(productId)}</h4>
-                    <p>{recommendation.reason}</p>
                     <a href="/harita#products-section-title">Katalogda görüntüle</a>
                   </div>
                 </article>
@@ -78,7 +71,6 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
                   <strong>{module!.ModuleTitleTR ?? module!.ModuleTitleEN ?? recommendation.id}</strong>
                   <span>{getProductTitle(recommendation.productId)}</span>
                 </div>
-                <p>{recommendation.reason}</p>
               </article>
             ))}
           </div>
@@ -132,30 +124,30 @@ export function SolutionRecommendation() {
     <section className="solution-recommendation" aria-labelledby="solution-recommendation-title">
       <header className="solution-recommendation-heading">
         <p className="eyebrow">İhtiyaç bazlı çözüm</p>
-        <h2 id="solution-recommendation-title">İhtiyacınızı anlatın, size uygun OnSuite yapısını önerelim.</h2>
-        <p>Üretimde çözmek istediğiniz problemi veya geliştirmek istediğiniz alanı birkaç cümleyle anlatın.</p>
+        <h2 id="solution-recommendation-title">İhtiyacınızı anlatın</h2>
       </header>
 
       <form className="solution-recommendation-form" onSubmit={handleSubmit}>
-        <label htmlFor="solution-need">Üretimde hangi alanı geliştirmek istiyorsunuz?</label>
         <textarea
           id="solution-need"
+          aria-label="İhtiyacınızı yazın"
           value={userNeed}
           onChange={(event) => setUserNeed(event.target.value)}
-          placeholder="Örn. Üretim verimliliğini artırmak ve duruş nedenlerini daha iyi analiz etmek istiyorum."
+          placeholder="Üretimde geliştirmek istediğiniz alanı yazın..."
           rows={4}
         />
         <div className="solution-example-list" aria-label="Örnek ihtiyaçlar">
+          <span>Örn:</span>
           {exampleNeeds.map((example) => (
-            <button type="button" className="solution-example" key={example} onClick={() => setUserNeed(example)}>
+            <button type="button" className="solution-example" key={example} onClick={() => setUserNeed(example)} aria-label={`${example} örneğini kullan`}>
               {example}
             </button>
           ))}
+          <button className="solution-submit" type="submit" aria-label="Çözüm öner" disabled={isLoading}>
+            {isLoading ? "..." : "→"}
+          </button>
         </div>
         <div className="solution-form-footer">
-          <button className="button button-primary" type="submit" disabled={isLoading}>
-            {isLoading ? "Öneriliyor..." : "Çözüm öner"}
-          </button>
           {validationMessage ? <p className="solution-validation" role="alert">{validationMessage}</p> : null}
         </div>
       </form>
