@@ -501,74 +501,31 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   font-weight: 750;
 }
 .architecture-flow-cue span { color: var(--brand); font-size: 1rem; }
+.architecture-tier-order {
+  margin: 0;
+  color: var(--architecture-accent);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
 @media (min-width: 901px) {
   .architecture-flow-shell {
     --architecture-shell-w: min(1320px, calc(100vw - 64px));
     --architecture-parent-w: min(1120px, calc(100vw - 32px));
+    box-sizing: border-box;
     width: var(--architecture-shell-w);
     margin-left: calc((var(--architecture-parent-w) - var(--architecture-shell-w)) / 2);
     margin-right: calc((var(--architecture-parent-w) - var(--architecture-shell-w)) / 2);
+    padding: 0 36px;
   }
-  .architecture-stack {
-    --architecture-connector: 48px;
-    --architecture-connector-margin: 10px;
-    justify-content: center;
-    gap: calc(var(--architecture-connector) + var(--architecture-connector-margin) * 2);
-  }
-  .architecture-tier-slot {
-    flex: 0 1 236px;
-    transition: flex-basis 550ms ease-in-out;
-  }
-  .architecture-stack.has-expanded .architecture-tier-slot { flex: 0 1 196px; }
-  .architecture-stack.has-expanded .architecture-tier-slot.is-active-slot { flex: 0 1 336px; }
-  .architecture-stack .architecture-arrow {
-    width: var(--architecture-connector);
-    left: calc(100% + var(--architecture-connector-margin));
-  }
+  .architecture-stack { gap: 32px; }
+  .architecture-tier-slot { flex: 1 1 0; }
+  .architecture-stack.has-expanded .architecture-tier-slot { flex-grow: 0.78; }
+  .architecture-stack.has-expanded .architecture-tier-slot.is-active-slot { flex-grow: 1.65; }
   .architecture-layer { padding: 26px 22px; }
   .architecture-layer-summary { gap: 18px; }
   .architecture-layer-description { line-height: 1.65; }
   .architecture-layer.is-expanded .architecture-layer-details { margin-top: 20px; }
-}
-.architecture-arrow {
-  position: absolute;
-  top: 0;
-  left: 100%;
-  width: 42px;
-  height: 440px;
-  pointer-events: none;
-}
-.architecture-arrow::before {
-  position: absolute;
-  top: calc(50% + 1px);
-  right: 12px;
-  left: 4px;
-  height: 2px;
-  background: repeating-linear-gradient(to right, var(--brand) 0 6px, transparent 6px 12px);
-  content: "";
-  transform: translateY(-50%);
-}
-.architecture-arrow span {
-  position: absolute;
-  top: calc(50% + 1px);
-  right: 1px;
-  color: var(--accent);
-  font-size: 1.15rem;
-  line-height: 1;
-  transform: translateY(-50%);
-}
-.architecture-flow-pulse {
-  position: absolute;
-  top: calc(50% - 2px);
-  left: 5px;
-  z-index: 2;
-  display: none;
-  width: 6px;
-  height: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.9);
-  border-radius: 999px;
-  background: var(--brand);
-  box-shadow: 0 0 0 2px rgba(var(--brand-rgb), 0.1);
 }
 .architecture-step-indicator { display: none; }
 @media (prefers-reduced-motion: no-preference) {
@@ -629,16 +586,6 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     79.8% { transform: translate(-350px, 221px); }
     93% { opacity: 1; }
     100% { opacity: 0; transform: translate(-315px, 221px); }
-  }
-  @keyframes architecture-flow {
-    from { background-position: 0 0; }
-    to { background-position: 24px 24px; }
-  }
-  @keyframes architecture-pulse-travel {
-    0% { opacity: 0; transform: translateX(0); }
-    14% { opacity: 0.9; }
-    86% { opacity: 0.9; }
-    100% { opacity: 0; transform: translateX(25px); }
   }
   @keyframes architecture-tier-enter {
     from { opacity: 0; transform: translateY(10px); }
@@ -792,6 +739,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     cursor: pointer;
     text-align: left;
   }
+  .architecture-tier-order { display: none; }
   .architecture-layer-summary .architecture-tier-icon,
   .architecture-layer-summary .architecture-number { grid-row: 1 / span 2; align-self: center; }
   .architecture-layer-summary h2 { align-self: end; font-size: clamp(1.2rem, 4vw, 1.55rem); }
@@ -806,7 +754,6 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   }
   .architecture-layer-description { max-width: 640px; font-size: 0.84rem; }
   .architecture-badges > span { font-size: 0.76rem; }
-  .architecture-arrow { display: none; }
 }
 
 @media (max-width: 600px) {

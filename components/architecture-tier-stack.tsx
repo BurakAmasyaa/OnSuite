@@ -89,17 +89,6 @@ function ArchitectureLayerPattern({ tone }: Pick<ArchitectureTier, "tone">) {
   );
 }
 
-function FlowArrow({ index }: { index: number }) {
-  const pulseStyle = { "--flow-pulse-delay": `${index * 280}ms` } as CSSProperties;
-
-  return (
-    <div className="architecture-arrow" aria-hidden="true">
-      <span>→</span>
-      <i className="architecture-flow-pulse" style={pulseStyle} />
-    </div>
-  );
-}
-
 export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) {
   const stackRef = useRef<HTMLElement>(null);
   const hasInteractedRef = useRef(false);
@@ -286,13 +275,12 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
                   aria-controls={detailId}
                   onClick={(event) => handleClick(event, index)}
                 >
+                  <span className="architecture-tier-order" aria-hidden="true">{tier.number}</span>
                   {tier.tierIcon ? (
                     <span className="architecture-tier-icon">
                       <ProductIcon icon={tier.tierIcon} />
                     </span>
-                  ) : (
-                    <span className="architecture-number">{tier.number}</span>
-                  )}
+                  ) : null}
                   <h2>{tier.title}</h2>
                   <span className="architecture-expand-hint" aria-hidden="true">
                     <span className="architecture-expand-hint-desktop">Detaylar için üzerine gelin</span>
@@ -326,7 +314,6 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
                   {tier.flowCue ? <p className="architecture-flow-cue"><span aria-hidden="true">↔</span>{tier.flowCue}</p> : null}
                 </div>
               </article>
-              {index < tiers.length - 1 ? <FlowArrow index={index} /> : null}
             </div>
           );
         })}
