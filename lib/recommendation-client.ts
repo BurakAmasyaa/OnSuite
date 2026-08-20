@@ -1,4 +1,6 @@
 import {
+  composeRecommendation,
+  emptyRecommendation,
   getRecommendationPlan,
   getStage1ProductCandidates,
   getStage2ModuleCandidates,
@@ -78,28 +80,30 @@ async function runBroadPath(userNeed: string, endpoint: string): Promise<Recomme
     const raw = await postRecommendation(endpoint, "/recommend/products", { userNeed, products: stage1Candidates });
     productIds = parseStage1Result(raw, stage1Candidates);
   } catch {
-    return { summary: unknownSummary, products: [], modules: [] };
+    return emptyRecommendation(unknownSummary);
   }
 
   if (productIds.length === 0) {
-    return { summary: unknownSummary, products: [], modules: [] };
+    return emptyRecommendation(unknownSummary);
   }
 
-  const products = productIds.map((id) => ({ id }));
+  // Stage 2 is scoped to the model's own picks: the platform products added
+  // by composeRecommendation are architectural context, not a signal that the
+  // user asked for their modules.
   const stage2Candidates = getStage2ModuleCandidates(productIds);
 
   if (stage2Candidates.length === 0) {
-    return { summary: genericSummary, products, modules: [] };
+    return composeRecommendation(productIds, [], genericSummary);
   }
 
   try {
     const raw = await postRecommendation(endpoint, "/recommend/modules", { userNeed, modules: stage2Candidates });
     const modules = parseStage2Result(raw, stage2Candidates);
-    return { summary: genericSummary, products, modules };
+    return composeRecommendation(productIds, modules, genericSummary);
   } catch {
     // Stage 1's verified product selection still stands even if Stage 2
     // (module refinement) fails — don't discard a real partial result.
-    return { summary: genericSummary, products, modules: [] };
+    return composeRecommendation(productIds, [], genericSummary);
   }
 }
 

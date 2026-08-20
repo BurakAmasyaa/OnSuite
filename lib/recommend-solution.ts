@@ -6,6 +6,12 @@ export type RecommendationResult = {
   summary: string;
   products: RecommendationProduct[];
   modules: RecommendationModule[];
+  /** Products that solve a separate need and are shown apart from the main
+   * stack rather than mixed into it (currently Engage — see PLATFORM_RULES). */
+  standaloneProducts: RecommendationProduct[];
+  /** Layered sentence describing the selected stack, composed from canonical
+   * product names only — never model-generated prose. */
+  solutionNarrative: string;
 };
 
 export type RecommendationCandidateProduct = {
@@ -95,6 +101,11 @@ const recommendationRules: RecommendationRule[] = [
     ],
   },
   {
+    terms: ["cnc", "tezgah", "makine verisi", "makineden veri", "veri toplama", "opc"],
+    products: ["CNC"],
+    modules: [],
+  },
+  {
     terms: ["izlenebilir", "izlenebilirlik", "parti", "lot", "seri numarası", "ürün takibi"],
     products: ["İZLENEBILIRLIK"],
     modules: [
@@ -108,6 +119,97 @@ const recommendationRules: RecommendationRule[] = [
 
 const genericSummary = "İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.";
 export const unknownSummary = "İhtiyacınızı biraz daha detaylandırabilirsiniz. Üretimde geliştirmek istediğiniz alanı belirtin.";
+
+const CORE_PRODUCT_ID = "CORE";
+const CONNECT_PRODUCT_ID = "CONNECTIVITY";
+const ENGAGE_PRODUCT_ID = "ENGAGE";
+
+/**
+ * Products whose data source is the shop floor. Connect is the collection
+ * layer beneath them (architecture tier 02), so selecting any of these
+ * implies Connect; a need met purely by Core-level products (Forms, Integra)
+ * does not.
+ */
+const MACHINE_DATA_PRODUCT_IDS = new Set(["CNC", "OPCTMC", "MONITORA", "OEE"]);
+
+/**
+ * Platform composition rules, applied deterministically after selection
+ * rather than left to the model: which products sit on the shared platform
+ * is a fixed property of the architecture (see lib/architecture.ts tier 02),
+ * not a judgement call that should vary between runs.
+ */
+function applyPlatformRules(productIds: string[]): { products: string[]; standalone: string[] } {
+  const selected = productIds.filter((id) => id !== ENGAGE_PRODUCT_ID);
+  const standalone = productIds.filter((id) => id === ENGAGE_PRODUCT_ID);
+
+  if (selected.length === 0) return { products: [], standalone };
+
+  const withPlatform = new Set(selected);
+  if (selected.some((id) => MACHINE_DATA_PRODUCT_IDS.has(id))) {
+    withPlatform.add(CONNECT_PRODUCT_ID);
+  }
+  withPlatform.add(CORE_PRODUCT_ID);
+
+  // Ordered by architecture tier so the stack always reads Connect → Core →
+  // capabilities, matching how the Mimari section presents the same layers.
+  const tierOrder = (id: string) => (id === CONNECT_PRODUCT_ID ? 0 : id === CORE_PRODUCT_ID ? 1 : 2);
+  const products = [...withPlatform].sort((left, right) => tierOrder(left) - tierOrder(right));
+
+  return { products, standalone };
+}
+
+function productDisplayName(productId: string): string {
+  const product = products.find((item) => item.AppProductCode === productId);
+  return product?.ProductTitleTR ?? product?.ProductTitleEN ?? productId;
+}
+
+/**
+ * Describes the selected stack layer by layer using only canonical product
+ * names. Deliberately templated rather than model-written: the AI prompts
+ * forbid inventing OnSuite capabilities, and free-form generated prose is
+ * exactly where that guarantee would break down.
+ */
+function buildSolutionNarrative(productIds: string[]): string {
+  const capabilities = productIds.filter((id) => id !== CORE_PRODUCT_ID && id !== CONNECT_PRODUCT_ID);
+  if (capabilities.length === 0) return "";
+
+  const capabilityNames = capabilities.map(productDisplayName);
+  const capabilityText = capabilityNames.length > 1
+    ? `${capabilityNames.slice(0, -1).join(", ")} ve ${capabilityNames[capabilityNames.length - 1]}`
+    : capabilityNames[0];
+
+  const hasConnect = productIds.includes(CONNECT_PRODUCT_ID);
+  const collectionText = hasConnect
+    ? `Makine ve sistemlerinizden ${productDisplayName(CONNECT_PRODUCT_ID)} ile veri toplanır, `
+    : "";
+
+  return `${collectionText}${productDisplayName(CORE_PRODUCT_ID)} üzerinde ortak altyapıda yönetilir ve ${capabilityText} ile ihtiyacınıza dönüştürülür.`;
+}
+
+export function emptyRecommendation(summary: string): RecommendationResult {
+  return { summary, products: [], modules: [], standaloneProducts: [], solutionNarrative: "" };
+}
+
+/** Applies the platform rules and narrative to a raw product selection,
+ * shared by the local fast path and the AI-backed broad path. */
+export function composeRecommendation(
+  productIds: string[],
+  modules: RecommendationModule[],
+  summary: string,
+): RecommendationResult {
+  const { products: composed, standalone } = applyPlatformRules(productIds);
+  const composedSet = new Set(composed);
+
+  return {
+    summary,
+    products: composed.map((id) => ({ id })),
+    standaloneProducts: standalone.map((id) => ({ id })),
+    // Platform products are added for context, so keep only modules whose
+    // product actually survived composition.
+    modules: modules.filter((module) => composedSet.has(module.productId)),
+    solutionNarrative: buildSolutionNarrative(composed),
+  };
+}
 
 const MAX_CANDIDATE_PRODUCTS = 20;
 const MAX_CANDIDATE_MODULES = 200;
@@ -235,7 +337,7 @@ export function getStage2ModuleCandidates(productIds: string[]): RecommendationC
 
 export function recommendSolution(userNeed: string): RecommendationResult {
   const matches = getRecommendationMatches(userNeed);
-  if (matches.length === 0) return { summary: unknownSummary, products: [], modules: [] };
+  if (matches.length === 0) return emptyRecommendation(unknownSummary);
 
   const productsById = new Set<string>();
   const modulesByKey = new Map<string, RecommendationModule>();
@@ -244,9 +346,11 @@ export function recommendSolution(userNeed: string): RecommendationResult {
     rule.modules.forEach((item) => modulesByKey.set(`${item.productId}:${item.id}`, item));
   }
 
-  return {
-    summary: genericSummary,
-    products: [...productsById].slice(0, 3).map((id) => ({ id })),
-    modules: [...modulesByKey.values()].slice(0, 6),
-  };
+  // Slice before composing so the cap applies to matched capabilities; the
+  // platform products the rules add back are context, not competing picks.
+  return composeRecommendation(
+    [...productsById].slice(0, 3),
+    [...modulesByKey.values()].slice(0, 6),
+    genericSummary,
+  );
 }

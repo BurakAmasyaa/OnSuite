@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, type CSSProperties } from "react";
 import { ProductIcon, productIconByCode } from "@/components/product-icon";
 import { getOfficialProductDescription, modules, products } from "@/lib/data";
 import { getAIRecommendation } from "@/lib/recommendation-client";
@@ -26,6 +26,9 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
       module: moduleByKey.get(`${recommendation.productId}:${recommendation.id}`),
     }))
     .filter((item) => item.module);
+  const resolvedStandalone = result.standaloneProducts
+    .map((recommendation) => ({ recommendation, product: productById.get(recommendation.id) }))
+    .filter((item) => item.product);
   const selectedProducts = resolvedProducts
     .map(({ product }) => product?.ProductTitleTR ?? product?.ProductTitleEN)
     .filter(Boolean);
@@ -34,7 +37,7 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
     selectedProducts.slice(0, 3).join(" + ") || "Eşleşen ürün yok",
   ];
 
-  if (resolvedProducts.length === 0 && resolvedModules.length === 0) {
+  if (resolvedProducts.length === 0 && resolvedModules.length === 0 && resolvedStandalone.length === 0) {
     return (
       <div className="solution-recommendation-empty" aria-live="polite">
         <strong>Eşleşen bir OnSuite çözümü bulamadım.</strong>
@@ -47,18 +50,25 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
     <div className="solution-recommendation-result" aria-live="polite">
       <p className="eyebrow">Önerilen çözüm</p>
       <p className="solution-recommendation-summary">İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.</p>
+      {result.solutionNarrative ? (
+        <p className="solution-recommendation-narrative">{result.solutionNarrative}</p>
+      ) : null}
 
       {resolvedProducts.length > 0 ? (
         <div className="solution-result-group">
           <h3>Önerilen Ana Ürünler</h3>
           <div className="solution-product-grid">
-            {resolvedProducts.map(({ recommendation, product }) => {
+            {resolvedProducts.map(({ recommendation, product }, index) => {
               const productId = recommendation.id;
               const icon = productIconByCode[product!.AppProductCode];
               const officialDescription = getOfficialProductDescription(productId);
 
               return (
-                <article className="solution-product-card" key={productId}>
+                <article
+                  className="solution-product-card"
+                  key={productId}
+                  style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}
+                >
                   {icon ? <ProductIcon icon={icon} /> : null}
                   <div>
                     <h4>{getProductTitle(productId)}</h4>
@@ -76,11 +86,15 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
         <div className="solution-result-group">
           <h3>Önerilen Modüller</h3>
           <div className="solution-module-list">
-            {resolvedModules.map(({ recommendation, module }) => {
+            {resolvedModules.map(({ recommendation, module }, index) => {
               const moduleDescription = module!.ModuleShortDescriptionTR ?? module!.ModuleShortDescriptionEN;
 
               return (
-                <article className="solution-module-item" key={`${recommendation.productId}:${recommendation.id}`}>
+                <article
+                  className="solution-module-item"
+                  key={`${recommendation.productId}:${recommendation.id}`}
+                  style={{ "--reveal-delay": `${(resolvedProducts.length + index) * 60}ms` } as CSSProperties}
+                >
                   <div>
                     <strong>{module!.ModuleTitleTR ?? module!.ModuleTitleEN ?? recommendation.id}</strong>
                     <span>{getProductTitle(recommendation.productId)}</span>
@@ -106,15 +120,46 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
           </div>
         </div>
       ) : null}
+
+      {resolvedStandalone.length > 0 ? (
+        <div className="solution-result-group solution-standalone-group">
+          <h3>Ayrıca değerlendirebilirsiniz</h3>
+          <p className="solution-standalone-note">Bu çözüm diğer modüllerden bağımsız olarak kullanılır.</p>
+          <div className="solution-product-grid">
+            {resolvedStandalone.map(({ recommendation, product }) => {
+              const productId = recommendation.id;
+              const icon = productIconByCode[product!.AppProductCode];
+              const officialDescription = getOfficialProductDescription(productId);
+
+              return (
+                <article className="solution-product-card" key={productId}>
+                  {icon ? <ProductIcon icon={icon} /> : null}
+                  <div>
+                    <h4>{getProductTitle(productId)}</h4>
+                    {officialDescription ? <p>{officialDescription}</p> : null}
+                    <a href="/harita#products-section-title">Katalogda görüntüle</a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
+
+/** The local fast path resolves almost instantly; showing the progress text
+ * for those would just make it flash. Only surface it once a request has been
+ * running long enough to read as waiting. */
+const LOADING_VISIBLE_DELAY_MS = 200;
 
 export function SolutionRecommendation() {
   const [userNeed, setUserNeed] = useState("");
   const [result, setResult] = useState<RecommendationResult | null>(null);
   const [validationMessage, setValidationMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showLoadingState, setShowLoadingState] = useState(false);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -132,8 +177,16 @@ export function SolutionRecommendation() {
 
     setValidationMessage("");
     setIsLoading(true);
-    setResult(await getAIRecommendation(trimmedNeed));
-    setIsLoading(false);
+    setResult(null);
+    const loadingTimer = window.setTimeout(() => setShowLoadingState(true), LOADING_VISIBLE_DELAY_MS);
+
+    try {
+      setResult(await getAIRecommendation(trimmedNeed));
+    } finally {
+      window.clearTimeout(loadingTimer);
+      setShowLoadingState(false);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -168,7 +221,19 @@ export function SolutionRecommendation() {
         </div>
       </form>
 
-      {result ? <RecommendationResultView result={result} /> : null}
+      {showLoadingState ? (
+        <div className="solution-recommendation-loading" role="status" aria-live="polite">
+          <p className="solution-loading-label">
+            <span className="solution-loading-spinner" aria-hidden="true" />
+            Sizin için çözüm üretiliyor...
+          </p>
+          <div className="solution-loading-skeleton" aria-hidden="true">
+            <span /><span /><span />
+          </div>
+        </div>
+      ) : null}
+
+      {result && !showLoadingState ? <RecommendationResultView result={result} /> : null}
     </section>
   );
 }
