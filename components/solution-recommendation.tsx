@@ -50,8 +50,22 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
     <div className="solution-recommendation-result" aria-live="polite">
       <p className="eyebrow">Önerilen çözüm</p>
       <p className="solution-recommendation-summary">İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.</p>
-      {result.solutionNarrative ? (
-        <p className="solution-recommendation-narrative">{result.solutionNarrative}</p>
+      {result.solutionRoles.length > 0 ? (
+        <div className="solution-role-flow">
+          <h3>Bu çözüm nasıl çalışır?</h3>
+          <ol>
+            {result.solutionRoles.map((entry, index) => (
+              <li
+                key={entry.productId}
+                className={`solution-role-item solution-role-${entry.tier}`}
+                style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}
+              >
+                <strong>{entry.name}</strong>
+                <span>{entry.role}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
       ) : null}
 
       {resolvedProducts.length > 0 ? (

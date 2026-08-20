@@ -108,21 +108,29 @@ async function runBroadPath(userNeed: string, endpoint: string): Promise<Recomme
 }
 
 export async function getAIRecommendation(userNeed: string): Promise<RecommendationResult> {
-  const localResult = recommendSolution(userNeed);
   const plan = getRecommendationPlan(userNeed);
 
-  // Fast-path queries already have a source-verified deterministic match —
-  // that result is authoritative and must not be diluted by a weaker AI
-  // answer (e.g. picking only a product and leaving its verified modules
-  // out). Skipping the AI call here is deterministic and saves an inference.
-  if (!plan || plan.mode === "fast") {
-    return localResult;
+  // Empty or keyboard-mash input is the one case worth answering without an
+  // inference: there is no need to understand.
+  if (!plan) {
+    return emptyRecommendation(unknownSummary);
   }
 
   const endpoint = process.env.NEXT_PUBLIC_RECOMMENDATION_API_URL?.trim();
   if (!endpoint) {
-    return localResult;
+    return recommendSolution(userNeed);
   }
 
-  return runBroadPath(userNeed, endpoint);
+  // Every real need goes to the model. Keyword rules can only match what
+  // someone thought to list, so they answered confidently and wrongly on
+  // phrasings they did not cover; they are the fallback now, not the gate.
+  const aiResult = await runBroadPath(userNeed, endpoint);
+  if (aiResult.products.length > 0 || aiResult.standaloneProducts.length > 0) {
+    return aiResult;
+  }
+
+  // The model found nothing (or the call failed). A local keyword match is
+  // still better than an empty answer.
+  const localResult = recommendSolution(userNeed);
+  return localResult.products.length > 0 ? localResult : aiResult;
 }

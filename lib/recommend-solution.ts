@@ -2,6 +2,14 @@ import { getOfficialProductDescription, modules, products } from "@/lib/data";
 
 export type RecommendationProduct = { id: string };
 export type RecommendationModule = { id: string; productId: string };
+/** One layer of the recommended stack: which product, and the job it does
+ * there. `tier` follows the Mimari layers (see lib/architecture.ts). */
+export type RecommendationRole = {
+  productId: string;
+  name: string;
+  tier: "connect" | "core" | "capability";
+  role: string;
+};
 export type RecommendationResult = {
   summary: string;
   products: RecommendationProduct[];
@@ -9,9 +17,10 @@ export type RecommendationResult = {
   /** Products that solve a separate need and are shown apart from the main
    * stack rather than mixed into it (currently Engage — see PLATFORM_RULES). */
   standaloneProducts: RecommendationProduct[];
-  /** Layered sentence describing the selected stack, composed from canonical
-   * product names only — never model-generated prose. */
-  solutionNarrative: string;
+  /** Per-product role in the selected stack, so the answer says what each
+   * layer actually does rather than just naming it. Wording comes from the
+   * canonical descriptions — never model-generated prose. */
+  solutionRoles: RecommendationRole[];
 };
 
 export type RecommendationCandidateProduct = {
@@ -213,30 +222,57 @@ function productDisplayName(productId: string): string {
 }
 
 /**
- * Describes the selected stack layer by layer using only canonical product
- * names. Deliberately templated rather than model-written: the AI prompts
- * forbid inventing OnSuite capabilities, and free-form generated prose is
- * exactly where that guarantee would break down.
+ * What each product does in a recommended stack, phrased in third person.
+ * Written out rather than derived from the official descriptions by string
+ * surgery: splitting and re-conjugating that Turkish copy produced mangled
+ * fragments ("oEE", "farklı makine", "toplayır"). Each line here restates its
+ * product's verified description from data/product-official-descriptions.json
+ * without adding capabilities.
  */
-function buildSolutionNarrative(productIds: string[]): string {
+const PRODUCT_ROLES: Record<string, string> = {
+  [CONNECT_PRODUCT_ID]: "farklı makine ve sistemlerden veriyi toplar, bağlantıları merkezi ve sürdürülebilir bir yapıda yönetir",
+  [CORE_PRODUCT_ID]: "tüm modüller için ortak altyapıyı kurar, yetki ve platform servislerini merkezi olarak yönetir",
+  CNC: "tezgah verisini dijital ortama taşır ve veri akışlarını standartlaştırır",
+  OPCTMC: "OPC UA TMC protokolü üzerinden tütün makinelerinden veri toplar ve süreçleri izler",
+  MONITORA: "üretimi gerçek zamanlı izler, kritik olayları anında görünür kılar",
+  OEE: "OEE ve performans kayıplarını analiz ederek verimlilik iyileştirmelerini destekler",
+  "İZLENEBILIRLIK": "ürün, lot ve seri bazlı izlenebilirliği uçtan uca yönetir",
+  DSF: "saha formlarını ve kontrol akışlarını dijitalleştirir",
+  INTELLIGENCE: "üretim verisini sorgulanabilir analizlere dönüştürür",
+  CARBONIQ: "karbon ayak izi ve sürdürülebilirlik hedeflerini veriyle yönetir",
+  ENTEGRASYON: "ERP, MES ve diğer kurumsal sistemlerle veri alışverişini yönetir",
+  LMS: "eğitim ve yetkinlik süreçlerini yönetir",
+  APPROVE: "onay ve iş akışı süreçlerini yürütür",
+  ENGAGE: "acil durumlarda çalışan güvenliğini çift kanallı olarak doğrular",
+  INFORM: "üretim bilgisini duyuru ve bilgilendirme ekranlarına taşır",
+};
+
+/** What a product does in a stack, for callers that show one product on its
+ * own (the standalone Engage card) rather than a whole layered solution. */
+export function getProductRole(productId: string): string {
+  return PRODUCT_ROLES[productId] ?? "";
+}
+
+/**
+ * Describes what each selected layer does, using only canonical copy.
+ * Deliberately derived rather than model-written: the AI prompts forbid
+ * inventing OnSuite capabilities, and free-form generated prose is exactly
+ * where that guarantee would break down.
+ */
+function buildSolutionRoles(productIds: string[]): RecommendationRole[] {
   const capabilities = productIds.filter((id) => id !== CORE_PRODUCT_ID && id !== CONNECT_PRODUCT_ID);
-  if (capabilities.length === 0) return "";
+  if (capabilities.length === 0) return [];
 
-  const capabilityNames = capabilities.map(productDisplayName);
-  const capabilityText = capabilityNames.length > 1
-    ? `${capabilityNames.slice(0, -1).join(", ")} ve ${capabilityNames[capabilityNames.length - 1]}`
-    : capabilityNames[0];
-
-  const hasConnect = productIds.includes(CONNECT_PRODUCT_ID);
-  const collectionText = hasConnect
-    ? `Makine ve sistemlerinizden ${productDisplayName(CONNECT_PRODUCT_ID)} ile veri toplanır, `
-    : "";
-
-  return `${collectionText}${productDisplayName(CORE_PRODUCT_ID)} üzerinde ortak altyapıda yönetilir ve ${capabilityText} ile ihtiyacınıza dönüştürülür.`;
+  return productIds.map((productId): RecommendationRole => ({
+    productId,
+    name: productDisplayName(productId),
+    tier: productId === CONNECT_PRODUCT_ID ? "connect" : productId === CORE_PRODUCT_ID ? "core" : "capability",
+    role: PRODUCT_ROLES[productId] ?? "",
+  })).filter((entry) => entry.role !== "");
 }
 
 export function emptyRecommendation(summary: string): RecommendationResult {
-  return { summary, products: [], modules: [], standaloneProducts: [], solutionNarrative: "" };
+  return { summary, products: [], modules: [], standaloneProducts: [], solutionRoles: [] };
 }
 
 /** Applies the platform rules and narrative to a raw product selection,
@@ -256,7 +292,7 @@ export function composeRecommendation(
     // Platform products are added for context, so keep only modules whose
     // product actually survived composition.
     modules: modules.filter((module) => composedSet.has(module.productId)),
-    solutionNarrative: buildSolutionNarrative(composed),
+    solutionRoles: buildSolutionRoles(composed),
   };
 }
 

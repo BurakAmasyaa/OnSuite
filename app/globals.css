@@ -150,7 +150,30 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .solution-path-step { display: flex; min-width: 0; align-items: center; gap: 8px; }
 .solution-path-step span { color: var(--gray-800); font-size: var(--text-sm); font-weight: var(--weight-bold); }
 .solution-path-step b { color: var(--brand); font-size: var(--text-lg); }
-.solution-recommendation-narrative { max-width: 760px; margin: 12px 0 0; color: var(--gray-800); font-size: var(--text-base); line-height: 1.65; }
+.solution-role-flow { margin-top: 28px; }
+.solution-role-flow h3 { margin: 0 0 14px; color: var(--gray-950); font-size: var(--text-lg); letter-spacing: -0.02em; }
+.solution-role-flow ol { display: grid; gap: 8px; max-width: 760px; margin: 0; padding: 0; list-style: none; counter-reset: solution-role; }
+.solution-role-item {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(92px, auto) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 14px;
+  border: 1px solid var(--gray-200);
+  border-left: 3px solid var(--gray-300);
+  border-radius: 12px;
+  background: var(--gray-50);
+  padding: 12px 16px;
+}
+.solution-role-item strong { color: var(--gray-950); font-size: var(--text-sm); font-weight: var(--weight-bold); }
+.solution-role-item span { color: var(--muted); font-size: var(--text-sm); line-height: 1.5; }
+/* The platform layers are shared infrastructure under every stack; tint them
+   toward the brand so the capability products still read as the answer. */
+.solution-role-connect, .solution-role-core { border-left-color: var(--brand); }
+.solution-role-connect strong, .solution-role-core strong { color: var(--brand); }
+@media (max-width: 620px) {
+  .solution-role-item { grid-template-columns: minmax(0, 1fr); }
+}
 .solution-standalone-note { max-width: 620px; margin: -8px 0 14px; color: var(--muted); font-size: var(--text-sm); line-height: 1.5; }
 .solution-recommendation-loading { display: grid; gap: 14px; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 28px; }
 .solution-loading-label { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--gray-800); font-size: var(--text-base); font-weight: var(--weight-bold); }
@@ -171,7 +194,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   .solution-loading-rows span:nth-child(1) { animation-delay: 180ms; }
   .solution-loading-rows span:nth-child(2) { animation-delay: 300ms; }
   .solution-loading-rows span:nth-child(3) { animation-delay: 420ms; }
-  .solution-product-card, .solution-module-item {
+  .solution-product-card, .solution-module-item, .solution-role-item {
     animation: solution-reveal 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: var(--reveal-delay, 0ms);
   }

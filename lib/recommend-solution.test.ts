@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { products } from "./data";
 import {
   composeRecommendation,
+  getProductRole,
   getStage2ModuleCandidates,
   recommendSolution,
 } from "./recommend-solution";
@@ -72,6 +74,52 @@ test("module candidates keep every selected product represented", () => {
       candidates.some((module) => module.productId === productId),
       `${productId} should appear among the candidates`,
     );
+  }
+});
+
+test("every layer explains its own job", () => {
+  const roles = composeRecommendation(["CNC", "İZLENEBILIRLIK"], [], "").solutionRoles;
+
+  assert.deepEqual(roles.map((entry) => entry.productId), ["CONNECTIVITY", "CORE", "CNC", "İZLENEBILIRLIK"]);
+  assert.deepEqual(roles.map((entry) => entry.tier), ["connect", "core", "capability", "capability"]);
+
+  // Each role has to say something specific — the previous templated summary
+  // read almost identically for every need.
+  const descriptions = roles.map((entry) => entry.role);
+  assert.equal(new Set(descriptions).size, descriptions.length);
+  for (const description of descriptions) {
+    assert.ok(description.length > 20, `role text too thin: "${description}"`);
+  }
+});
+
+test("a stack of platform products alone has no roles to explain", () => {
+  assert.deepEqual(composeRecommendation(["CORE"], [], "").solutionRoles, []);
+});
+
+test("every catalog product can describe its role", () => {
+  // A product with no role text is silently dropped from the explanation, so
+  // catch a newly added one here rather than in the UI. Pairing each product
+  // with a capability keeps the platform-only case (which has nothing to
+  // explain) out of the way.
+  for (const product of products) {
+    const productId = product.AppProductCode;
+    // Core and Connect only appear alongside a capability; Engage is split
+    // out as a standalone product and carries its role there.
+    if (productId === "CORE" || productId === "CONNECTIVITY" || productId === "ENGAGE") continue;
+
+    const roles = composeRecommendation([productId], [], "").solutionRoles;
+    assert.ok(
+      roles.some((entry) => entry.productId === productId),
+      `${productId} has no role text`,
+    );
+  }
+
+  assert.ok(getProductRole("ENGAGE").length > 20, "Engage has no role text");
+
+  // The platform layers describe themselves too, once a capability is present.
+  const withCapability = composeRecommendation(["CNC"], [], "").solutionRoles;
+  for (const platformId of ["CONNECTIVITY", "CORE"]) {
+    assert.ok(withCapability.some((entry) => entry.productId === platformId));
   }
 });
 
