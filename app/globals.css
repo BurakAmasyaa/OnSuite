@@ -155,11 +155,22 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
 .solution-recommendation-loading { display: grid; gap: 14px; margin-top: 28px; border-top: 1px solid var(--line); padding-top: 28px; }
 .solution-loading-label { display: flex; align-items: center; gap: 10px; margin: 0; color: var(--gray-800); font-size: var(--text-base); font-weight: var(--weight-bold); }
 .solution-loading-spinner { display: block; width: 16px; height: 16px; border: 2px solid rgba(var(--brand-rgb), 0.2); border-top-color: var(--brand); border-radius: 50%; }
-.solution-loading-skeleton { display: grid; gap: 10px; }
-.solution-loading-skeleton span { display: block; height: 58px; border-radius: 14px; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%); background-size: 400% 100%; }
+.solution-loading-skeleton { display: grid; gap: 14px; }
+.solution-loading-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.solution-loading-cards span { height: 96px; border-radius: 16px; }
+.solution-loading-rows { display: grid; gap: 10px; }
+.solution-loading-rows span { height: 52px; border-radius: 12px; }
+.solution-loading-skeleton span { display: block; background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 37%, var(--gray-100) 63%); background-size: 400% 100%; }
 @media (prefers-reduced-motion: no-preference) {
   .solution-loading-spinner { animation: solution-spin 700ms linear infinite; }
+  .solution-recommendation-loading { animation: solution-reveal 260ms ease-out both; }
   .solution-loading-skeleton span { animation: solution-shimmer 1400ms ease-in-out infinite; }
+  /* Offset each placeholder so the shimmer reads as one wave crossing the
+     block rather than every bar pulsing in lockstep. */
+  .solution-loading-cards span:nth-child(2) { animation-delay: 120ms; }
+  .solution-loading-rows span:nth-child(1) { animation-delay: 180ms; }
+  .solution-loading-rows span:nth-child(2) { animation-delay: 300ms; }
+  .solution-loading-rows span:nth-child(3) { animation-delay: 420ms; }
   .solution-product-card, .solution-module-item {
     animation: solution-reveal 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: var(--reveal-delay, 0ms);

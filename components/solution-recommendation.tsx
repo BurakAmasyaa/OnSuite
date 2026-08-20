@@ -149,10 +149,13 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
   );
 }
 
-/** The local fast path resolves almost instantly; showing the progress text
- * for those would just make it flash. Only surface it once a request has been
- * running long enough to read as waiting. */
-const LOADING_VISIBLE_DELAY_MS = 200;
+/** The local fast path resolves in about a millisecond, so a purely
+ * duration-based gate would never show the animation at all. Show it
+ * immediately instead, and hold it for a minimum beat so the result never
+ * flashes past faster than it can be read. */
+const LOADING_MIN_VISIBLE_MS = 600;
+
+const wait = (ms: number) => new Promise<void>((resolve) => { window.setTimeout(resolve, ms); });
 
 export function SolutionRecommendation() {
   const [userNeed, setUserNeed] = useState("");
@@ -178,12 +181,15 @@ export function SolutionRecommendation() {
     setValidationMessage("");
     setIsLoading(true);
     setResult(null);
-    const loadingTimer = window.setTimeout(() => setShowLoadingState(true), LOADING_VISIBLE_DELAY_MS);
+    setShowLoadingState(true);
+    const startedAt = Date.now();
 
     try {
-      setResult(await getAIRecommendation(trimmedNeed));
+      const recommendation = await getAIRecommendation(trimmedNeed);
+      const remaining = LOADING_MIN_VISIBLE_MS - (Date.now() - startedAt);
+      if (remaining > 0) await wait(remaining);
+      setResult(recommendation);
     } finally {
-      window.clearTimeout(loadingTimer);
       setShowLoadingState(false);
       setIsLoading(false);
     }
@@ -227,8 +233,16 @@ export function SolutionRecommendation() {
             <span className="solution-loading-spinner" aria-hidden="true" />
             Sizin için çözüm üretiliyor...
           </p>
+          {/* Mirrors the result layout — a product card grid over module
+              rows — so the content lands in place rather than replacing a
+              differently shaped block. */}
           <div className="solution-loading-skeleton" aria-hidden="true">
-            <span /><span /><span />
+            <div className="solution-loading-cards">
+              <span /><span />
+            </div>
+            <div className="solution-loading-rows">
+              <span /><span /><span />
+            </div>
           </div>
         </div>
       ) : null}
