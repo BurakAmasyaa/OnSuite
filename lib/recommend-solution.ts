@@ -47,6 +47,11 @@ type RecommendationRule = {
   terms: string[];
   products: string[];
   modules: RecommendationModule[];
+  /** Terms that name a product's specific domain rather than a generic
+   * capability. One of these outweighs any number of generic matches, so
+   * "tütün makinesi OPC UA" resolves to TMC instead of losing on term count
+   * to the broader machine-data rule. */
+  distinctiveTerms?: string[];
 };
 
 const recommendationRules: RecommendationRule[] = [
@@ -80,7 +85,10 @@ const recommendationRules: RecommendationRule[] = [
     ],
   },
   {
-    terms: ["raporlama", "rapor", "görünürlük", "yönetim", "içgörü"],
+    // "yönetim" alone matched almost any sentence ("eğitim yönetimi",
+    // "yetkilendirme ve platform yönetimi") and locked those queries onto
+    // reporting. Keep the terms specific to reporting and insight.
+    terms: ["raporlama", "rapor", "görünürlük", "içgörü", "analiz", "dashboard", "gösterge"],
     products: ["MONITORA", "INTELLIGENCE"],
     modules: [
       { id: "RPTPROCESS", productId: "MONITORA" },
@@ -101,8 +109,49 @@ const recommendationRules: RecommendationRule[] = [
     ],
   },
   {
-    terms: ["cnc", "tezgah", "makine verisi", "makineden veri", "veri toplama", "opc"],
+    terms: ["tütün", "tobacco", "tmc"],
+    distinctiveTerms: ["tütün", "tobacco", "tmc"],
+    products: ["OPCTMC"],
+    modules: [],
+  },
+  {
+    terms: ["cnc", "tezgah", "makine verisi", "makineden veri", "veri toplama", "opc ua"],
     products: ["CNC"],
+    modules: [],
+  },
+  {
+    terms: ["form", "kontrol formu", "checklist", "saha formu"],
+    products: ["DSF"],
+    modules: [],
+  },
+  {
+    terms: ["erp", "sap", "entegrasyon", "mes", "wms", "veri alışverişi"],
+    products: ["ENTEGRASYON"],
+    modules: [],
+  },
+  {
+    terms: ["eğitim", "sertifika", "yetkinlik", "training", "kurs"],
+    products: ["LMS"],
+    modules: [],
+  },
+  {
+    terms: ["onay", "iş akışı", "approve", "talep"],
+    products: ["APPROVE"],
+    modules: [],
+  },
+  {
+    terms: ["acil durum", "kriz", "çalışan güvenliği", "tahliye"],
+    products: ["ENGAGE"],
+    modules: [],
+  },
+  {
+    terms: ["duyuru", "bilgilendirme", "ekran", "anons"],
+    products: ["INFORM"],
+    modules: [],
+  },
+  {
+    terms: ["yetkilendirme", "kullanıcı yönetimi", "platform yönetimi", "rol"],
+    products: ["CORE"],
     modules: [],
   },
   {
@@ -243,18 +292,46 @@ function looksLikeGibberish(trimmedNeed: string): boolean {
   return uniqueCharRatio < GIBBERISH_MIN_UNIQUE_CHAR_RATIO;
 }
 
+/**
+ * Matches on a word-prefix boundary rather than a bare substring, so "rol"
+ * no longer fires inside "kontrol" and "form" no longer fires inside
+ * "performans". Terms ending in a partial stem (e.g. "verimlil") still match
+ * their inflections because only the start of the word is anchored.
+ */
+function termMatches(normalizedNeed: string, term: string): boolean {
+  const normalizedTerm = normalizeNeed(term);
+  const escaped = normalizedTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-z0-9])${escaped}`).test(normalizedNeed);
+}
+
 function getRecommendationMatches(userNeed: string) {
   const normalizedNeed = normalizeNeed(userNeed.trim());
   if (!normalizedNeed) return [];
 
-  return recommendationRules
-    .map((rule, index) => ({
-      rule,
-      index,
-      score: rule.terms.reduce((score, term) => score + (normalizedNeed.includes(normalizeNeed(term)) ? 1 : 0), 0),
-    }))
+  const scored = recommendationRules
+    .map((rule, index) => {
+      const score = rule.terms.reduce((total, term) => total + (termMatches(normalizedNeed, term) ? 1 : 0), 0);
+      const isDistinctive = rule.distinctiveTerms?.some((term) => termMatches(normalizedNeed, term)) ?? false;
+      return { rule, index, score, isDistinctive };
+    })
     .filter((match) => match.score > 0)
-    .sort((left, right) => right.score - left.score || left.index - right.index);
+    .sort((left, right) =>
+      Number(right.isDistinctive) - Number(left.isDistinctive) ||
+      right.score - left.score ||
+      left.index - right.index);
+
+  // A domain-specific hit settles the answer on its own; drop the generic
+  // rules that merely shared a keyword with it.
+  const distinctive = scored.filter((match) => match.isDistinctive);
+  if (distinctive.length > 0) return distinctive;
+
+  if (scored.length === 0) return scored;
+
+  // Merging every rule that matched at all let a single incidental keyword
+  // drag an unrelated product into the answer. Keep only rules matching the
+  // top score, so a decisive match wins instead of being diluted.
+  const topScore = scored[0].score;
+  return scored.filter((match) => match.score === topScore);
 }
 
 function buildFastCandidates(productIds: string[], moduleKeys: string[]): { products: RecommendationCandidateProduct[]; modules: RecommendationCandidateModule[] } {
@@ -321,18 +398,29 @@ export function getStage1ProductCandidates(): RecommendationStage1Product[] {
 }
 
 /** Stage 2 candidates: only the modules belonging to the given (Stage 1
- * selected) product IDs, from the canonical Excel-derived module data. */
+ * selected) product IDs, from the canonical Excel-derived module data.
+ * Interleaved by product rather than concatenated, because a flat slice let
+ * a module-heavy product (Trace has 24) crowd a later product out of the
+ * candidate list entirely. */
 export function getStage2ModuleCandidates(productIds: string[]): RecommendationCandidateModule[] {
-  const productIdSet = new Set(productIds);
-  return modules
-    .filter((module) => productIdSet.has(module.AppProductCode))
+  const byProduct = productIds.map((productId) => modules
+    .filter((module) => module.AppProductCode === productId)
     .map((module) => ({
       id: module.AppModuleCode,
       productId: module.AppProductCode,
       name: module.ModuleTitleTR ?? module.ModuleTitleEN ?? module.AppModuleCode,
       description: module.ModuleShortDescriptionTR ?? module.ModuleShortDescriptionEN ?? "",
-    }))
-    .slice(0, MAX_STAGE2_MODULES);
+    })));
+
+  const interleaved: RecommendationCandidateModule[] = [];
+  const longest = Math.max(0, ...byProduct.map((list) => list.length));
+  for (let round = 0; round < longest; round += 1) {
+    for (const list of byProduct) {
+      if (round < list.length) interleaved.push(list[round]);
+    }
+  }
+
+  return interleaved.slice(0, MAX_STAGE2_MODULES);
 }
 
 export function recommendSolution(userNeed: string): RecommendationResult {
