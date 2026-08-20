@@ -5,7 +5,6 @@ import {
   recommendSolution,
   unknownSummary,
   type RecommendationCandidateModule,
-  type RecommendationCandidateProduct,
   type RecommendationResult,
   type RecommendationStage1Product,
 } from "@/lib/recommend-solution";
@@ -39,39 +38,6 @@ async function postRecommendation(endpoint: string, path: string, body: unknown)
   }
 }
 
-function parseFastPathResult(
-  value: unknown,
-  candidates: { products: RecommendationCandidateProduct[]; modules: RecommendationCandidateModule[] },
-): RecommendationResult {
-  if (!isRecord(value) || !Array.isArray(value.productIds) || !Array.isArray(value.modules)) {
-    throw new Error("Invalid recommendation response");
-  }
-
-  const candidateProducts = new Set(candidates.products.map((product) => product.id));
-  const candidateModules = new Map(candidates.modules.map((module) => [`${module.productId}:${module.id}`, module]));
-  const products = value.productIds.filter((id): id is string => typeof id === "string" && candidateProducts.has(id))
-    .slice(0, 3).map((id) => ({ id }));
-  const modules = value.modules.filter(isRecord).filter((module) => (
-    typeof module.id === "string" &&
-    typeof module.productId === "string" &&
-    candidateModules.has(`${module.productId}:${module.id}`)
-  )).slice(0, 6).map((module) => ({
-    id: module.id as string,
-    productId: module.productId as string,
-  }));
-
-  // An empty selection is a legitimate AI answer (the need doesn't match the
-  // OnSuite catalog), not an error — it must not be masked by the local
-  // fallback, so it's returned as-is rather than thrown.
-  const isNoMatch = products.length === 0 && modules.length === 0;
-
-  return {
-    summary: isNoMatch ? unknownSummary : genericSummary,
-    products,
-    modules,
-  };
-}
-
 function parseStage1Result(value: unknown, candidates: RecommendationStage1Product[]): string[] {
   if (!isRecord(value) || !Array.isArray(value.productIds)) {
     throw new Error("Invalid stage 1 response");
@@ -95,32 +61,6 @@ function parseStage2Result(value: unknown, candidates: RecommendationCandidateMo
     id: module.id as string,
     productId: module.productId as string,
   }));
-}
-
-async function runFastPath(
-  userNeed: string,
-  endpoint: string,
-  candidates: { products: RecommendationCandidateProduct[]; modules: RecommendationCandidateModule[] },
-  localResult: RecommendationResult,
-): Promise<RecommendationResult> {
-  try {
-    const raw = await postRecommendation(endpoint, "/recommend", { userNeed, products: candidates.products, modules: candidates.modules });
-    const aiResult = parseFastPathResult(raw, candidates);
-    const aiIsEmpty = aiResult.products.length === 0 && aiResult.modules.length === 0;
-    const localIsVerifiedMatch = localResult.products.length > 0 || localResult.modules.length > 0;
-
-    // A verified local fast-path match is trusted over an AI response that
-    // came back empty (model uncertainty, JSON-mode quirk, etc). An empty AI
-    // answer only counts as a genuine no-match on the broad/semantic path,
-    // where there was no local keyword signal to begin with.
-    if (aiIsEmpty && localIsVerifiedMatch) {
-      return localResult;
-    }
-
-    return aiResult;
-  } catch {
-    return localResult;
-  }
 }
 
 /**
@@ -166,14 +106,18 @@ async function runBroadPath(userNeed: string, endpoint: string): Promise<Recomme
 export async function getAIRecommendation(userNeed: string): Promise<RecommendationResult> {
   const localResult = recommendSolution(userNeed);
   const plan = getRecommendationPlan(userNeed);
-  const endpoint = process.env.NEXT_PUBLIC_RECOMMENDATION_API_URL?.trim();
 
-  if (!endpoint || !plan) {
+  // Fast-path queries already have a source-verified deterministic match —
+  // that result is authoritative and must not be diluted by a weaker AI
+  // answer (e.g. picking only a product and leaving its verified modules
+  // out). Skipping the AI call here is deterministic and saves an inference.
+  if (!plan || plan.mode === "fast") {
     return localResult;
   }
 
-  if (plan.mode === "fast") {
-    return runFastPath(userNeed, endpoint, plan, localResult);
+  const endpoint = process.env.NEXT_PUBLIC_RECOMMENDATION_API_URL?.trim();
+  if (!endpoint) {
+    return localResult;
   }
 
   return runBroadPath(userNeed, endpoint);

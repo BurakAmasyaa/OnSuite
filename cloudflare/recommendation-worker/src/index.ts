@@ -32,7 +32,8 @@ Understand the user's production/industrial need semantically, in Turkish or Eng
 You are given a fixed list of OnSuite products, each with an id, a name, and an official short description.
 Select only product IDs from this list. Never invent an ID.
 Do not assume any product fact, capability, or description beyond what is given in the candidate list.
-Select at most 3 product IDs that best address the need.
+Prefer the smallest useful solution: usually a single product, and no more than two unless the need clearly spans a third, distinct area that your top picks do not cover. Select at most 3 product IDs.
+Some products are infrastructure/platform layers rather than solutions on their own — their own description talks about a central/shared platform, or about connecting machines and collecting field data (for example Core and Connect). Include one of these only when the need explicitly asks for machine/system connectivity, field data collection, protocol integration, or a central/shared platform. Do not add them just because they generally support other products.
 If the request is unrelated to the supplied OnSuite products, return an empty productIds array — this is a valid answer, not a failure.
 Return only the required structured output.`;
 
