@@ -513,12 +513,29 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     gap: 24px;
     overflow: visible;
   }
-  .architecture-stack.has-expanded { align-items: start; }
-  .architecture-layer { padding: 26px 22px; }
-  .architecture-layer.is-expanded { height: var(--architecture-expanded-height, 440px); }
+  /* The slot's height is fixed regardless of hover state, so the grid row
+     track can never grow — the card itself floats above it as an overlay
+     (see .architecture-layer position:absolute below) instead of being
+     measured as part of the row. */
+  .architecture-tier-slot { height: 440px; }
+  .architecture-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    padding: 26px 22px;
+  }
+  .architecture-layer.is-expanded {
+    height: var(--architecture-expanded-height, 440px);
+    z-index: 5;
+  }
   .architecture-layer-summary { gap: 18px; }
   .architecture-layer-description { line-height: 1.65; }
   .architecture-layer.is-expanded .architecture-layer-details { margin-top: 20px; }
+  /* The outer rounded "Sistem Bağlantıları" card clips overflow for its own
+     corners; relax that only while a tier is expanded so the floating
+     overlay isn't cut off, without affecting its footprint the rest of the
+     time or on any other tab. */
+  .architecture-state-tabs:has(.architecture-stack.has-expanded) { overflow: visible; }
 }
 .architecture-step-indicator { display: none; }
 @media (prefers-reduced-motion: no-preference) {
