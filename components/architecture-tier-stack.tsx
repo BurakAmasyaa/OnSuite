@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
   type CSSProperties,
@@ -93,10 +94,25 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
   const stackRef = useRef<HTMLElement>(null);
   const hasInteractedRef = useRef(false);
   const tierSlotsRef = useRef<Array<HTMLDivElement | null>>([]);
+  const layerRefs = useRef<Array<HTMLElement | null>>([]);
   const hoverIntentRef = useRef<number | null>(null);
   const [hasEntered, setHasEntered] = useState(false);
   const [expandedTier, setExpandedTier] = useState<number | null>(null);
   const [visibleTier, setVisibleTier] = useState(0);
+
+  // Desktop cards have a fixed collapsed height, so the expanded card can't
+  // rely on height:auto (it can't be transitioned). Measure its real content
+  // height instead and drive the CSS height transition from that, so the
+  // card grows to fit its content exactly — no internal scrolling, no
+  // guessed max-height.
+  useLayoutEffect(() => {
+    if (expandedTier === null) return;
+
+    const layer = layerRefs.current[expandedTier];
+    if (!layer) return;
+
+    layer.style.setProperty("--architecture-expanded-height", `${layer.scrollHeight}px`);
+  }, [expandedTier]);
 
   useEffect(() => {
     const stack = stackRef.current;
@@ -260,6 +276,9 @@ export function ArchitectureTierStack({ tiers }: { tiers: ArchitectureTier[] }) 
               key={tier.tone}
             >
               <article
+                ref={(element) => {
+                  layerRefs.current[index] = element;
+                }}
                 className={`architecture-layer architecture-layer-${tier.tone}${isExpanded ? " is-expanded" : ""}`}
                 style={entranceStyle}
                 onPointerEnter={(event) => handlePointerEnter(event, index)}

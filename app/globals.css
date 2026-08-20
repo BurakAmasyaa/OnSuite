@@ -346,6 +346,7 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   background: var(--architecture-bg);
   padding: 22px 18px;
   box-shadow: 0 20px 55px rgba(23, 24, 28, 0.08);
+  transition: height 450ms ease-in-out;
 }
 .architecture-layer::after {
   position: absolute;
@@ -423,17 +424,14 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
   text-align: left;
 }
 .architecture-layer.is-expanded .architecture-layer-details {
-  max-height: 310px;
+  max-height: none;
   flex: 1 1 auto;
   margin-top: 16px;
-  overflow-x: hidden;
-  overflow-y: auto;
+  overflow: visible;
   opacity: 1;
   visibility: visible;
   transform: translateY(0);
   transition-delay: 0s;
-  scrollbar-color: var(--architecture-line) transparent;
-  scrollbar-width: thin;
 }
 .architecture-layer-eyebrow { margin: 0 0 7px; color: var(--architecture-accent); font-size: 0.66rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
 .architecture-layer-description { margin: 0; color: var(--muted); font-size: 0.78rem; line-height: 1.55; }
@@ -515,7 +513,9 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     gap: 24px;
     overflow: visible;
   }
+  .architecture-stack.has-expanded { align-items: start; }
   .architecture-layer { padding: 26px 22px; }
+  .architecture-layer.is-expanded { height: var(--architecture-expanded-height, 440px); }
   .architecture-layer-summary { gap: 18px; }
   .architecture-layer-description { line-height: 1.65; }
   .architecture-layer.is-expanded .architecture-layer-details { margin-top: 20px; }
