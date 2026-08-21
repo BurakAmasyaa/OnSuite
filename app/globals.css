@@ -117,10 +117,20 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
    scroll internally instead. */
 .solution-recommendation-form textarea { field-sizing: content; width: 100%; height: auto; min-height: 26px; max-height: 180px; overflow-y: auto; resize: none; border: 0; background: transparent; padding: 0 56px 0 0; color: var(--ink); font: inherit; font-size: var(--text-base); line-height: 1.55; }
 .solution-recommendation-form textarea::placeholder { color: var(--gray-500); }
-.solution-recommendation-form textarea:focus { border-color: var(--brand); outline: 2px solid rgba(var(--brand-rgb), 0.14); outline-offset: 2px; }
+/* The textarea is borderless inside the form's rounded shell, so focusing it
+   used to draw a second rectangle inside that shell. Let the shell itself
+   take the focus treatment and keep the field silent. */
+.solution-recommendation-form textarea:focus { outline: none; }
+.solution-recommendation-form:focus-within {
+  border-color: var(--brand);
+  box-shadow: 0 18px 50px rgba(23, 24, 28, 0.07), 0 0 0 3px rgba(var(--brand-rgb), 0.1);
+}
 .solution-example-list { display: flex; min-width: 0; flex-wrap: wrap; align-items: center; gap: 3px 8px; padding-right: 56px; color: var(--gray-500); font-size: var(--text-xs); line-height: 1.4; }
 .solution-example { border: 0; background: transparent; padding: 2px 0; color: var(--gray-500); font: inherit; font-size: inherit; cursor: pointer; }
-.solution-example:hover, .solution-example:focus-visible { border-color: var(--brand); color: var(--brand); outline: none; }
+.solution-example:hover { color: var(--brand); }
+/* Colour alone is too weak a focus cue now that the shell also lights up on
+   focus-within — keyboard users need to see which example is selected. */
+.solution-example:focus-visible { color: var(--brand); outline: 2px solid rgba(var(--brand-rgb), 0.45); outline-offset: 3px; border-radius: 6px; }
 /* Anchored to the top so it centres on the first line of the textarea and
    stays there as the field grows, rather than riding the form's bottom. */
 .solution-submit { position: absolute; right: 14px; top: 5px; display: grid; width: 40px; height: 40px; place-items: center; border: 0; border-radius: 50%; background: var(--brand); color: var(--white); font: inherit; font-size: 1.2rem; line-height: 1; cursor: pointer; }
