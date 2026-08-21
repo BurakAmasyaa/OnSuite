@@ -8,6 +8,14 @@ import type { RecommendationResult } from "@/lib/recommend-solution";
 
 const exampleNeeds = ["Verimlilik", "Anlık üretim takibi", "Kalite"];
 
+/** Names the Mimari tier each product sits on, so the stack reads as layers
+ * rather than a flat list of picks. */
+const tierLabels: Record<string, string> = {
+  connect: "Bağlantı katmanı",
+  core: "Ortak altyapı",
+  capability: "Çözüm modülü",
+};
+
 const productById = new Map(products.map((product) => [product.AppProductCode, product]));
 const moduleByKey = new Map(modules.map((module) => [`${module.AppProductCode}:${module.AppModuleCode}`, module]));
 
@@ -29,13 +37,7 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
   const resolvedStandalone = result.standaloneProducts
     .map((recommendation) => ({ recommendation, product: productById.get(recommendation.id) }))
     .filter((item) => item.product);
-  const selectedProducts = resolvedProducts
-    .map(({ product }) => product?.ProductTitleTR ?? product?.ProductTitleEN)
-    .filter(Boolean);
-  const solutionPath = [
-    "Seçilen ürünler",
-    selectedProducts.slice(0, 3).join(" + ") || "Eşleşen ürün yok",
-  ];
+  const roleByProductId = new Map(result.solutionRoles.map((entry) => [entry.productId, entry]));
 
   if (resolvedProducts.length === 0 && resolvedModules.length === 0 && resolvedStandalone.length === 0) {
     return (
@@ -50,49 +52,37 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
     <div className="solution-recommendation-result" aria-live="polite">
       <p className="eyebrow">Önerilen çözüm</p>
       <p className="solution-recommendation-summary">İhtiyacınıza göre aşağıdaki OnSuite ürün ve modülleri eşleşti.</p>
-      {result.solutionRoles.length > 0 ? (
-        <div className="solution-role-flow">
-          <h3>Bu çözüm nasıl çalışır?</h3>
-          <ol>
-            {result.solutionRoles.map((entry, index) => (
-              <li
-                key={entry.productId}
-                className={`solution-role-item solution-role-${entry.tier}`}
-                style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}
-              >
-                <strong>{entry.name}</strong>
-                <span>{entry.role}</span>
-              </li>
-            ))}
-          </ol>
-        </div>
-      ) : null}
-
       {resolvedProducts.length > 0 ? (
         <div className="solution-result-group">
-          <h3>Önerilen Ana Ürünler</h3>
-          <div className="solution-product-grid">
+          <h3>Çözüm katmanları</h3>
+          {/* One card per layer, in architecture order, each carrying its own
+              role — the separate role list and product grid said the same
+              thing twice over. */}
+          <ol className="solution-stack">
             {resolvedProducts.map(({ recommendation, product }, index) => {
               const productId = recommendation.id;
               const icon = productIconByCode[product!.AppProductCode];
-              const officialDescription = getOfficialProductDescription(productId);
+              const layer = roleByProductId.get(productId);
 
               return (
-                <article
-                  className="solution-product-card"
+                <li
+                  className={`solution-stack-item solution-stack-${layer?.tier ?? "capability"}`}
                   key={productId}
                   style={{ "--reveal-delay": `${index * 60}ms` } as CSSProperties}
                 >
                   {icon ? <ProductIcon icon={icon} /> : null}
                   <div>
-                    <h4>{getProductTitle(productId)}</h4>
-                    {officialDescription ? <p>{officialDescription}</p> : null}
+                    <p className="solution-stack-heading">
+                      <strong>{getProductTitle(productId)}</strong>
+                      {layer ? <span className="solution-stack-tier">{tierLabels[layer.tier]}</span> : null}
+                    </p>
+                    {layer?.role ? <p className="solution-stack-role">{layer.role}</p> : null}
                     <a href="/harita#products-section-title">Katalogda görüntüle</a>
                   </div>
-                </article>
+                </li>
               );
             })}
-          </div>
+          </ol>
         </div>
       ) : null}
 
@@ -121,19 +111,6 @@ function RecommendationResultView({ result }: { result: RecommendationResult }) 
         </div>
       ) : null}
 
-      {resolvedProducts.length > 0 || resolvedModules.length > 0 ? (
-        <div className="solution-result-group solution-path-group">
-          <h3>Önerilen OnSuite Yapısı</h3>
-          <div className="solution-path" aria-label={solutionPath.join(", ardından ")}>
-            {solutionPath.map((step, index) => (
-              <div className="solution-path-step" key={step}>
-                <span>{step}</span>
-                {index < solutionPath.length - 1 ? <b aria-hidden="true">→</b> : null}
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : null}
 
       {resolvedStandalone.length > 0 ? (
         <div className="solution-result-group solution-standalone-group">
