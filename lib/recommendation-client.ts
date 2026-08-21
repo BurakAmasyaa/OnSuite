@@ -40,13 +40,30 @@ async function postRecommendation(endpoint: string, path: string, body: unknown)
   }
 }
 
-function parseStage1Result(value: unknown, candidates: RecommendationStage1Product[]): string[] {
+/** A stage 1 pick plus the part of the request it answers, which stage 2
+ * uses to scope its module choices. */
+type Stage1Pick = { productId: string; need: string };
+
+function parseStage1Result(value: unknown, candidates: RecommendationStage1Product[]): Stage1Pick[] {
   if (!isRecord(value) || !Array.isArray(value.productIds)) {
     throw new Error("Invalid stage 1 response");
   }
 
   const candidateProductIds = new Set(candidates.map((product) => product.id));
-  return [...new Set(value.productIds.filter((id): id is string => typeof id === "string" && candidateProductIds.has(id)))].slice(0, 3);
+  const needByProductId = new Map<string, string>();
+  if (Array.isArray(value.selections)) {
+    for (const entry of value.selections) {
+      if (isRecord(entry) && typeof entry.productId === "string" && typeof entry.need === "string") {
+        needByProductId.set(entry.productId, entry.need);
+      }
+    }
+  }
+
+  const productIds = [...new Set(value.productIds.filter(
+    (id): id is string => typeof id === "string" && candidateProductIds.has(id),
+  ))].slice(0, 3);
+
+  return productIds.map((productId) => ({ productId, need: needByProductId.get(productId) ?? "" }));
 }
 
 function parseStage2Result(value: unknown, candidates: RecommendationCandidateModule[]): RecommendationResult["modules"] {
@@ -75,17 +92,19 @@ function parseStage2Result(value: unknown, candidates: RecommendationCandidateMo
 async function runBroadPath(userNeed: string, endpoint: string): Promise<RecommendationResult> {
   const stage1Candidates = getStage1ProductCandidates();
 
-  let productIds: string[];
+  let picks: Stage1Pick[];
   try {
     const raw = await postRecommendation(endpoint, "/recommend/products", { userNeed, products: stage1Candidates });
-    productIds = parseStage1Result(raw, stage1Candidates);
+    picks = parseStage1Result(raw, stage1Candidates);
   } catch {
     return emptyRecommendation(unknownSummary);
   }
 
-  if (productIds.length === 0) {
+  if (picks.length === 0) {
     return emptyRecommendation(unknownSummary);
   }
+
+  const productIds = picks.map((pick) => pick.productId);
 
   // Stage 2 is scoped to the model's own picks: the platform products added
   // by composeRecommendation are architectural context, not a signal that the
@@ -97,7 +116,14 @@ async function runBroadPath(userNeed: string, endpoint: string): Promise<Recomme
   }
 
   try {
-    const raw = await postRecommendation(endpoint, "/recommend/modules", { userNeed, modules: stage2Candidates });
+    // Pass stage 1's reasoning along so module picks are scoped per product
+    // rather than to the request as a whole.
+    const selections = picks.filter((pick) => pick.need !== "");
+    const raw = await postRecommendation(endpoint, "/recommend/modules", {
+      userNeed,
+      modules: stage2Candidates,
+      ...(selections.length > 0 ? { selections } : {}),
+    });
     const modules = parseStage2Result(raw, stage2Candidates);
     return composeRecommendation(productIds, modules, genericSummary);
   } catch {

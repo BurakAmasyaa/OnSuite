@@ -10,10 +10,11 @@ type CandidateProduct = { id: string; name: string; description: string };
 type CandidateModule = { id: string; productId: string; name: string; description: string };
 type Stage1Product = { id: string; name: string; officialDescription: string };
 type RecommendationRequest = { userNeed: string; products: CandidateProduct[]; modules: CandidateModule[] };
+type Stage1Selected = { productId: string; need: string };
 type Stage1Request = { userNeed: string; products: Stage1Product[] };
-type Stage2Request = { userNeed: string; modules: CandidateModule[] };
+type Stage2Request = { userNeed: string; modules: CandidateModule[]; selections?: Stage1Selected[] };
 type AIRecommendationSelection = { productIds: string[]; modules: { id: string; productId: string }[] };
-type Stage1Selection = { productIds: string[] };
+type Stage1Selection = { selections: Stage1Selected[] };
 type Stage2Selection = { modules: { id: string; productId: string }[] };
 type AiBinding = { run: (model: string, options: Record<string, unknown>) => Promise<unknown> };
 type Env = { AI: AiBinding; ALLOWED_ORIGINS?: string };
@@ -34,11 +35,13 @@ Select only product IDs from this list. Never invent an ID.
 Do not assume any product fact, capability, or description beyond what is given in the candidate list.
 Prefer the smallest useful solution: usually a single product, and no more than two unless the need clearly spans a third, distinct area that your top picks do not cover. Select at most 3 product IDs.
 Select only the capability products that address the need. Do not select the shared platform layers (Core and Connect) — they are added automatically afterwards by fixed architecture rules, so including them here only wastes a slot that a real capability product needs.
-If the request is unrelated to the supplied OnSuite products, return an empty productIds array — this is a valid answer, not a failure.
+For each product you select, also state in "need" — in the user's own language, at most a dozen words — which part of their request that product answers. Quote or paraphrase the user's wording; do not describe the product or claim capabilities for it.
+If the request is unrelated to the supplied OnSuite products, return an empty selections array — this is a valid answer, not a failure.
 Return only the required structured output.`;
 
 const STAGE2_SYSTEM_PROMPT = `You are an OnSuite module selection engine.
 You are given the user's original production/industrial need again, plus a fixed list of modules that belong only to the OnSuite products already selected for this need.
+You may also be given, for each selected product, the part of the user's request it was chosen to answer. Use it to scope your picks: for a given product, prefer the modules serving that product's stated part of the need over modules that merely sound related.
 Select only module IDs (each paired with its productId) from this list. Never invent an id or a productId that is not present in the list.
 Do not assume any module fact, capability, or description beyond what is given in the candidate list.
 Select at most 6 modules that best address the need.
@@ -79,9 +82,24 @@ const STAGE1_RESPONSE_FORMAT = {
     schema: {
       type: "object",
       additionalProperties: false,
-      required: ["productIds"],
+      required: ["selections"],
       properties: {
-        productIds: { type: "array", maxItems: 3, items: { type: "string" } },
+        selections: {
+          type: "array",
+          maxItems: 3,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            required: ["productId", "need"],
+            properties: {
+              productId: { type: "string" },
+              // Which part of the request this product answers. Passed to
+              // stage 2 as a scoping hint; never shown to the user, so a
+              // loose phrasing here cannot surface as an invented fact.
+              need: { type: "string", maxLength: 120 },
+            },
+          },
+        },
       },
     },
   },
@@ -177,7 +195,18 @@ function validateStage1Request(value: unknown): Stage1Request {
 function validateStage2Request(value: unknown): Stage2Request {
   if (!isRecord(value) || !isNeed(value.userNeed)) throw new Error("Invalid userNeed");
   if (!Array.isArray(value.modules) || value.modules.length > MAX_STAGE2_MODULES || !value.modules.every(isCandidateModule)) throw new Error("Invalid modules");
-  return { userNeed: (value.userNeed as string).trim(), modules: value.modules };
+
+  // Optional: stage 1's per-product scoping hints. Absent or malformed hints
+  // just drop out — stage 2 still works without them.
+  const selections = Array.isArray(value.selections)
+    ? value.selections
+      .filter((entry): entry is Record<string, unknown> => isRecord(entry))
+      .filter((entry) => typeof entry.productId === "string" && typeof entry.need === "string")
+      .slice(0, 3)
+      .map((entry) => ({ productId: entry.productId as string, need: (entry.need as string).slice(0, 120) }))
+    : undefined;
+
+  return { userNeed: (value.userNeed as string).trim(), modules: value.modules, selections };
 }
 
 function parseStructuredResponse(value: unknown): unknown {
@@ -197,8 +226,16 @@ function parseModelResponse(value: unknown): AIRecommendationSelection {
 
 function parseStage1Response(value: unknown): Stage1Selection {
   const parsed = parseStructuredResponse(value);
-  if (!isRecord(parsed) || !Array.isArray(parsed.productIds)) throw new Error("Malformed stage 1 model response");
-  return { productIds: parsed.productIds.filter((id): id is string => typeof id === "string") };
+  if (!isRecord(parsed) || !Array.isArray(parsed.selections)) throw new Error("Malformed stage 1 model response");
+  return {
+    selections: parsed.selections
+      .filter((entry): entry is Record<string, unknown> => isRecord(entry))
+      .filter((entry) => typeof entry.productId === "string")
+      .map((entry) => ({
+        productId: entry.productId as string,
+        need: typeof entry.need === "string" ? entry.need.slice(0, 120) : "",
+      })),
+  };
 }
 
 function parseStage2Response(value: unknown): Stage2Selection {
@@ -222,9 +259,20 @@ function validateSelection(selection: AIRecommendationSelection, request: Recomm
 
 function validateStage1Selection(selection: Stage1Selection, request: Stage1Request) {
   const productIds = new Set(request.products.map((product) => product.id));
+  const seen = new Set<string>();
+  const selections: Stage1Selected[] = [];
   // Empty is a valid answer (irrelevant request, or every id hallucinated) —
   // returned as-is, never treated as a failure.
-  return { productIds: [...new Set(selection.productIds)].filter((id) => productIds.has(id)).slice(0, 3) };
+  for (const entry of selection.selections) {
+    if (selections.length >= 3) break;
+    if (!productIds.has(entry.productId) || seen.has(entry.productId)) continue;
+    seen.add(entry.productId);
+    selections.push(entry);
+  }
+
+  // productIds stays in the response so existing clients keep working; the
+  // paired needs ride alongside it.
+  return { productIds: selections.map((entry) => entry.productId), selections };
 }
 
 function validateStage2Selection(selection: Stage2Selection, request: Stage2Request) {
@@ -300,7 +348,14 @@ async function handleStage2(request: Request, env: Env): Promise<Response> {
       response_format: STAGE2_RESPONSE_FORMAT,
       messages: [
         { role: "system", content: STAGE2_SYSTEM_PROMPT },
-        { role: "user", content: JSON.stringify({ userNeed: stage2Request.userNeed, modules: stage2Request.modules }) },
+        {
+          role: "user",
+          content: JSON.stringify({
+            userNeed: stage2Request.userNeed,
+            ...(stage2Request.selections?.length ? { selectedProducts: stage2Request.selections } : {}),
+            modules: stage2Request.modules,
+          }),
+        },
       ],
     });
     return jsonResponse(request, env, validateStage2Selection(parseStage2Response(response), stage2Request));
