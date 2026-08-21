@@ -509,11 +509,24 @@ h1 { margin: 0; max-width: 820px; font-size: clamp(2.6rem, 7vw, 5.2rem); line-he
     background: var(--architecture-bg);
     padding: 16px 22px 18px;
     transform: translateY(100%);
-    transition: opacity 380ms ease, transform 420ms cubic-bezier(0.22, 0.8, 0.24, 1), visibility 0s linear 420ms;
+    /* Closing: slightly longer than the old 420ms and with a gentler tail, so
+       the panel eases away instead of snapping shut. The fade runs ahead of
+       the slide so the text is gone before the panel finishes leaving. */
+    transition:
+      opacity 240ms ease-out,
+      transform 460ms cubic-bezier(0.16, 0.84, 0.28, 1),
+      visibility 0s linear 460ms;
   }
   .architecture-layer.is-expanded .architecture-layer-details {
     margin-top: 0;
     transform: translateY(0);
+    /* The expanded state drives the opening: the panel fades in as it rises,
+       with no delay, so content is readable while it settles. The base rule
+       above governs the reverse. */
+    transition:
+      opacity 300ms ease-out,
+      transform 520ms cubic-bezier(0.16, 0.84, 0.28, 1),
+      visibility 0s;
   }
   /* The hover hint has served its purpose once the panel is open, and the
      header needs that row's height to clear the panel's top edge. */
